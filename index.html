@@ -576,6 +576,9 @@
     var expectedSaleValue = state.items.reduce(function(s,it){ return s+(it.sellingPrice||0)*(it.stock||0); },0);
     var potential = expectedSaleValue - stockValue;
     var totalUdhaar = state.customers.reduce(function(s,c){ return s+(c.balance||0); },0);
+    var allTimeRevenue = totalOf(state.sales);
+    var allTimeProfit = profitOf(state.sales);
+    var allTimeCost = allTimeRevenue - allTimeProfit;
     var todaysTotal = totalOf(salesInRange(today));
     var weekTotal = totalOf(salesInRange(week));
     var monthTotal = totalOf(salesInRange(month));
@@ -598,6 +601,14 @@
         '<div class="stat"><b>'+money(stockValue)+'</b><span>Stock value (cost)</span></div>'+
         '<div class="stat"><b>'+money(expectedSaleValue)+'</b><span>Expected sale value</span></div>'+
         '<div class="stat"><b class="'+plClass(potential)+'">'+money(Math.abs(potential))+' '+(potential<0?'(loss)':(potential>0?'(profit)':''))+'</b><span>Potential margin</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Overall (all-time) profit / loss</b>'+
+      '<div class="grid3" style="margin-top:10px">'+
+        '<div class="stat"><b>'+money(allTimeRevenue)+'</b><span>Total sale (all time)</span></div>'+
+        '<div class="stat"><b>'+money(allTimeCost)+'</b><span>Total cost (all time)</span></div>'+
+        '<div class="stat"><b class="'+plClass(allTimeProfit)+'">'+money(Math.abs(allTimeProfit))+'</b><span>'+(allTimeProfit<0?'Overall loss':'Overall profit')+'</span></div>'+
       '</div>'+
     '</div>'+
     '<div class="grid2">'+
@@ -970,7 +981,10 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(btn){ btn.onclick=function(){ var it=state.items.find(function(x){return x.id===btn.dataset.edit;}); if(it) itemFormModal(it); }; });
     document.getElementById('pdfCurrentBtn').onclick = function(){
       var rows = state.items.map(function(it){ return [it.name, categoryLabel(it.category), it.barcode, money(it.costPrice), money(it.sellingPrice), it.stock, money(it.costPrice*it.stock)]; });
-      buildSimplePDF('Current Inventory — '+fmtDate(Date.now()), ['Item','Category','Barcode','Cost','Price','Stock','Value'], rows, 'inventory.pdf');
+      var stockVal = state.items.reduce(function(s,it){ return s+(it.costPrice||0)*(it.stock||0); },0);
+      var saleVal = state.items.reduce(function(s,it){ return s+(it.sellingPrice||0)*(it.stock||0); },0);
+      buildSimplePDF('Current Inventory — '+fmtDate(Date.now()), ['Item','Category','Barcode','Cost','Price','Stock','Value'], rows, 'inventory.pdf',
+        ['Total items: '+state.items.length, 'Total stock value (cost): '+money(stockVal), 'Total expected sale value: '+money(saleVal), 'Potential margin: '+money(saleVal-stockVal)]);
     };
     document.getElementById('pdfLogBtn').onclick = function(){
       var fromV = document.getElementById('logFrom').value, toV = document.getElementById('logTo').value;
@@ -1097,7 +1111,8 @@
     var reportBtn = document.getElementById('khataReportBtn');
     if(reportBtn) reportBtn.onclick = function(){
       var rows = state.customers.map(function(c){ return [c.name, c.phone||'', c.cnic||'', money(c.balance||0)]; });
-      buildSimplePDF('Khata Report — '+fmtDate(Date.now()), ['Customer','Phone','CNIC','Balance'], rows, 'khata-report.pdf');
+      var totalOwed = state.customers.reduce(function(s,c){ return s+(c.balance||0); },0);
+      buildSimplePDF('Khata Report — '+fmtDate(Date.now()), ['Customer','Phone','CNIC','Balance'], rows, 'khata-report.pdf', ['Total owed by all customers: '+money(totalOwed)]);
     };
   }
 
@@ -1368,12 +1383,27 @@
       else { from=state.reportFrom?new Date(state.reportFrom):startOfDay(now); to=state.reportTo?new Date(new Date(state.reportTo).getTime()+86399999):new Date(); label=(state.reportFrom||'?')+' to '+(state.reportTo||'?'); }
       var filtered = salesInRange(from,to);
       var rows = filtered.map(function(s){ return [fmtTime(s.ts), s.staffName||'', s.type==='return'?'Return':(s.paymentType==='credit'?'Udhaar':'Cash'), s.items.map(function(l){return l.name+' x'+Math.abs(l.qty);}).join(', '), money(s.total)]; });
-      buildSimplePDF('Sales Report — '+label, ['Date','Staff','Type','Items','Total'], rows, 'sales-report.pdf');
+      var revenue = totalOf(filtered);
+      var profit = profitOf(filtered);
+      var cost = revenue - profit;
+      var udhaarGiven = filtered.filter(function(s){ return s.paymentType==='credit' && s.type!=='return'; }).reduce(function(s,x){ return s+x.total; },0);
+      var t0 = from.getTime(), t1 = to?to.getTime():Infinity;
+      var udhaarReceived = 0;
+      state.customers.forEach(function(c){ (c.history||[]).forEach(function(h){ if(h.type==='payment' && h.ts>=t0 && h.ts<=t1) udhaarReceived += Math.abs(h.amount); }); });
+      var summary = [
+        'Total sale: '+money(revenue),
+        'Total cost: '+money(cost),
+        (profit<0?'Loss: ':'Profit: ')+money(Math.abs(profit)),
+        'Udhaar (credit) given in this period: '+money(udhaarGiven),
+        'Udhaar (payments) received in this period: '+money(udhaarReceived),
+        'Net result: '+(profit<0?'Loss of ':'Profit of ')+money(Math.abs(profit))
+      ];
+      buildSimplePDF('Sales Report — '+label, ['Date','Staff','Type','Items','Total'], rows, 'sales-report.pdf', summary);
     };
   }
 
   // ================= PDF helper =================
-  function buildSimplePDF(title, columns, rows, filename){
+  function buildSimplePDF(title, columns, rows, filename, summaryLines){
     if(!LIB.pdf || typeof window.jspdf==='undefined'){ toast('PDF library not loaded yet — check for an ad-blocker blocking scripts, or try again in a moment'); loadPdfLib(); return; }
     var doc = new window.jspdf.jsPDF();
     doc.setFontSize(14); doc.text(title,14,16);
@@ -1384,7 +1414,7 @@
     columns.forEach(function(c,i){ doc.text(String(c), colX[i], y); });
     doc.setFont(undefined,'normal'); y+=5; doc.line(14,y-3,196,y-3); y+=3;
     rows.forEach(function(row){
-      if(y>282){ doc.addPage(); y=20; }
+      if(y>270){ doc.addPage(); y=20; }
       row.forEach(function(cell,i){
         var text = String(cell==null?'':cell);
         if(text.length>28) text = text.slice(0,26)+'…';
@@ -1392,7 +1422,17 @@
       });
       y+=7;
     });
-    if(!rows.length){ doc.text('No records in this range.', 14, y); }
+    if(!rows.length){ doc.text('No records in this range.', 14, y); y+=10; }
+    if(summaryLines && summaryLines.length){
+      if(y>250){ doc.addPage(); y=20; }
+      y+=4; doc.line(14,y,196,y); y+=8;
+      doc.setFont(undefined,'bold'); doc.setFontSize(11); doc.text('Summary', 14, y); y+=8;
+      doc.setFont(undefined,'normal'); doc.setFontSize(10);
+      summaryLines.forEach(function(line){
+        if(y>280){ doc.addPage(); y=20; }
+        doc.text(String(line), 14, y); y+=7;
+      });
+    }
     doc.save(filename);
   }
 
