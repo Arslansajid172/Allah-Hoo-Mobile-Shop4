@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Allah Hoo Mobile Shop</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#122341">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --navy:#122341; --navy-deep:#0B182E; --amber:#F5A623; --amber-deep:#D98A12;
+    --paper:#F5F6F3; --card:#FFFFFF; --ink:#16181D; --ink-soft:#5C6270; --line:#E4E5E1;
+    --green:#1E8F71; --red:#C7402C; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent;}
+  button, input, select{font-family:inherit;}
+  button{transition:transform .08s ease, background .15s ease;}
+  button:active{transform:scale(.96);}
+  #app{min-height:100vh;display:none;flex-direction:column;padding-bottom:64px;}
+  #app.show{display:flex;}
+  #main{animation:fadein .18s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  header.top{background:var(--navy);color:#fff;padding:16px 20px 18px;position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:flex-start;}
+  header.top .htext h1{margin:0;font-size:18px;font-weight:700;}
+  header.top .htext .sub{margin-top:3px;font-size:12px;color:#B9C2D6;}
+  header.top .hright{text-align:right;font-size:11.5px;color:#DCE3F0;}
+  header.top .hright b{display:block;font-size:12.5px;}
+  header.top .hbtns{display:flex;gap:6px;margin-top:6px;justify-content:flex-end;}
+  header.top .hbtns button{background:rgba(255,255,255,.12);border:none;color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;cursor:pointer;}
+
+  main{flex:1;padding:16px;max-width:960px;width:100%;margin:0 auto;}
+
+  nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);
+    display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom);overflow-x:auto;}
+  nav.tabs button{flex:1;min-width:58px;border:none;background:none;padding:9px 2px 8px;font-size:10.5px;color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+  nav.tabs button .ic{font-size:17px;line-height:1;}
+  nav.tabs button.active{color:var(--navy);font-weight:700;}
+  nav.tabs button.active .ic{color:var(--amber-deep);}
+
+  @media(min-width:760px){
+    #app.show{flex-direction:row;}
+    header.top{display:none;}
+    nav.tabs{position:static;flex-direction:column;width:200px;border-top:none;border-right:1px solid var(--line);
+      background:var(--navy);padding:20px 0;height:100vh;position:sticky;top:0;overflow-x:visible;}
+    nav.tabs .brand{color:#fff;padding:0 16px 14px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:8px;}
+    nav.tabs .brand b{display:block;font-size:14px;}
+    nav.tabs .brand span{display:block;font-size:11px;color:#AEB8CC;margin-top:2px;}
+    nav.tabs button{flex-direction:row;justify-content:flex-start;gap:9px;padding:10px 16px;color:#B9C2D6;font-size:13px;}
+    nav.tabs button.active{background:rgba(245,166,35,.14);color:#fff;border-right:3px solid var(--amber);}
+    nav.tabs button.active .ic{color:var(--amber);}
+    nav.tabs .navLogout{margin-top:auto;padding:12px 16px;color:#8D97AC;font-size:11.5px;background:none;border:none;text-align:left;cursor:pointer;}
+    main{padding:24px 28px;max-width:940px;}
+  }
+
+  h2.pagetitle{font-size:16px;margin:2px 0 14px;color:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  @media(max-width:480px){.grid3,.grid4{grid-template-columns:1fr 1fr;}}
+  .stat b{display:block;font-size:19px;color:var(--navy);}
+  .stat span{font-size:11px;color:var(--ink-soft);}
+  .pos{color:var(--green) !important;}
+  .neg{color:var(--red) !important;}
+
+  label{display:block;font-size:12px;color:var(--ink-soft);margin:10px 0 4px;}
+  label:first-child{margin-top:0;}
+  input[type=text],input[type=number],input[type=tel],input[type=date],input[type=file],select{
+    width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;font-size:14.5px;background:#fff;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--amber);outline-offset:-1px;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:8px;
+    padding:11px 16px;font-size:13.5px;font-weight:600;cursor:pointer;}
+  .btn-amber{background:var(--amber);color:#2B1C00;}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-outline{background:none;border:1px solid var(--line);color:var(--ink);}
+  .btn-danger{background:#FBE9E6;color:var(--red);}
+  .btn-green{background:#E4F4EF;color:var(--green);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:6px 11px;font-size:12px;}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .row{display:flex;gap:8px;flex-wrap:wrap;}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);
+    padding:6px 8px;border-bottom:1px solid var(--line);}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .muted{color:var(--ink-soft);}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;}
+  .pill.mobile{background:#E8EEFC;color:#1E4FBF;}
+  .pill.accessory{background:#FBF0DC;color:#946200;}
+  .pill.othercat{background:#EAE3F7;color:#5B3AA5;}
+  .pill.credit{background:#FDEAE6;color:#B4402A;}
+  .pill.cash{background:#E4F4EF;color:#1E8F71;}
+  .pill.return{background:#F1E5FB;color:#6A2FB0;}
+  .pill.role{background:#EEF1F6;color:var(--navy);}
+  .badge-low{color:var(--red);font-weight:700;}
+
+  .banner{border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .banner.warn{background:#FBF0DC;color:#7A5300;}
+  .banner.info{background:#E8EEFC;color:#1E4FBF;}
+  .banner.err{background:#FBE9E6;color:var(--red);}
+
+  .scanbox{background:var(--navy);border-radius:var(--radius);padding:16px;color:#fff;margin-bottom:14px;}
+  .scanbox input{background:#fff;color:#111;}
+  .scanbox .hint{font-size:11px;color:#B9C2D6;margin-top:8px;line-height:1.5;}
+
+  .quicksellrow{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;}
+  .quicksellchip{flex:0 0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;cursor:pointer;white-space:nowrap;}
+  .quicksellchip b{display:block;font-size:12.5px;color:var(--navy);}
+  .quicksellchip span{color:var(--ink-soft);font-size:10.5px;}
+
+  .cartline{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .cartline:last-child{border-bottom:none;}
+  .cartline .name{flex:1;min-width:0;}
+  .cartline .name b{display:block;font-size:13px;}
+  .cartline .name span{font-size:10.5px;color:var(--ink-soft);}
+  .cartline input[type=number]{width:54px;text-align:center;padding:6px;}
+  .cartline .rate{width:72px;padding:6px;text-align:right;}
+  .cartline .remove{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 4px;}
+
+  .totalbar{display:flex;justify-content:space-between;align-items:center;padding-top:8px;font-size:13px;color:var(--ink-soft);}
+  .totalbar.grand{font-size:15px;font-weight:700;color:var(--navy);border-top:1px solid var(--line);margin-top:6px;padding-top:10px;}
+  .empty{text-align:center;padding:32px 10px;color:var(--ink-soft);font-size:13px;}
+  .searchbar{display:flex;gap:8px;margin-bottom:12px;}
+  .searchbar input{flex:1;}
+  .filterchips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+  .chip{padding:6px 12px;border-radius:20px;font-size:11.5px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-soft);}
+  .chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+  .toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;
+    padding:10px 18px;border-radius:30px;font-size:13px;z-index:100;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:90vw;text-align:center;
+    animation:toastin .18s ease;}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
+  @media(min-width:760px){.toast{bottom:20px;}}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.5);display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fadein2 .12s ease;}
+  @keyframes fadein2{from{opacity:0;}to{opacity:1;}}
+  @media(min-width:760px){.modal-bg{align-items:center;}}
+  .modal{background:#fff;border-radius:14px 14px 0 0;padding:18px;width:100%;max-width:480px;max-height:88vh;overflow:auto;}
+  @media(min-width:760px){.modal{border-radius:14px;}}
+  .modal h3{margin:0 0 12px;font-size:15px;color:var(--navy);}
+  .modal-close{float:right;background:none;border:none;font-size:20px;color:var(--ink-soft);cursor:pointer;}
+
+  .barcode-preview{text-align:center;padding:14px;background:#fff;border:1px dashed var(--line);border-radius:8px;margin-top:10px;}
+  .barcode-preview .lbl-name{font-weight:700;font-size:13px;margin-bottom:2px;}
+  .barcode-preview .lbl-price{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{display:block !important;position:absolute;top:0;left:0;width:100%;}
+    .printlabel{display:inline-block;width:32%;margin:0.5%;padding:8px;border:1px dashed #999;text-align:center;page-break-inside:avoid;}
+    .printlabel .pn{font-size:11px;font-weight:700;margin-bottom:2px;}
+    .printlabel .pp{font-size:10px;color:#333;margin-bottom:4px;}
+    .receipt{width:320px;margin:0 auto;font-family:monospace;font-size:12px;}
+    .receipt h3{text-align:center;margin:0 0 2px;font-size:14px;}
+    .receipt .center{text-align:center;}
+    .receipt table{width:100%;border-collapse:collapse;font-size:11px;}
+    .receipt td{padding:2px 0;border:none;}
+    .receipt hr{border:none;border-top:1px dashed #333;}
+  }
+  .loading{padding:60px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
+
+  #lockScreen{min-height:100vh;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;padding:20px;}
+  #lockScreen.hide{display:none;}
+  .lockbox{width:100%;max-width:340px;text-align:center;}
+  .lockbox .shoptitle{font-size:19px;font-weight:700;margin-bottom:2px;}
+  .lockbox .shopsub{font-size:12px;color:#AEB8CC;margin-bottom:26px;}
+  .stafflist{display:flex;flex-direction:column;gap:10px;}
+  .staffbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff;padding:14px;border-radius:10px;font-size:14.5px;font-weight:600;cursor:pointer;}
+  .staffbtn:active{background:rgba(245,166,35,.25);}
+  .pinpad{margin-top:18px;}
+  .pindots{display:flex;justify-content:center;gap:12px;margin:14px 0 20px;}
+  .pindot{width:13px;height:13px;border-radius:50%;border:2px solid #fff;}
+  .pindot.filled{background:var(--amber);border-color:var(--amber);}
+  .padgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto;}
+  .padkey{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:19px;
+    padding:16px 0;border-radius:10px;cursor:pointer;}
+  .padkey:active{background:rgba(245,166,35,.3);}
+  .backlink{margin-top:18px;background:none;border:none;color:#AEB8CC;font-size:12.5px;cursor:pointer;text-decoration:underline;}
+  .pinerr{color:#F1A9A0;font-size:12px;margin-top:6px;height:14px;}
+
+  .setupwrap{max-width:380px;margin:0 auto;text-align:left;}
+  .setupwrap h1{font-size:17px;margin-bottom:4px;}
+  .setupwrap p.hint{font-size:12px;color:#AEB8CC;margin-bottom:18px;}
+  .setupwrap label{color:#DCE3F0;}
+
+  .ledgerrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+  .ledgerrow:last-child{border-bottom:none;}
+  .balpos{color:var(--red);font-weight:700;}
+  .balzero{color:var(--green);font-weight:700;}
+
+  [dir="rtl"] .cartline .remove{order:-1;}
+</style>
+</head>
+<body>
+
+<div id="lockScreen"><div class="lockbox" id="lockContent"></div></div>
+
+<div id="app">
+  <header class="top">
+    <div class="htext">
+      <h1>Allah Hoo Mobile Shop</h1>
+      <div class="sub">Thingi Colony</div>
+    </div>
+    <div class="hright" id="headerStaff"></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <div class="brand">
+      <b>Allah Hoo Mobile Shop</b>
+      <span>Thingi Colony · Asif &amp; Faisal</span>
+    </div>
+  </nav>
+
+  <main id="main"><div class="loading">Loading…</div></main>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ================= i18n =================
+  var STRINGS = {
+    en:{ dashboard:'Dashboard', billing:'Sell / Scan', inventory:'Inventory', khata:'Khata', barcodes:'Barcodes', reports:'Reports', settings:'Settings',
+      lockSwitch:'Lock / Switch user', addItem:'+ Add item', completeSale:'Complete Sale', cart:'Cart', today:'Today', thisWeek:'This week', thisMonth:'This month',
+      custom:'Custom', revenue:'Revenue', cost:'Cost', profit:'Profit', loss:'Loss', totalSale:'Total sale', addCustomer:'+ Add customer', save:'Save', cancel:'Cancel' },
+    ur:{ dashboard:'ڈیش بورڈ', billing:'فروخت / اسکین', inventory:'انوینٹری', khata:'کھاتہ', barcodes:'بار کوڈ', reports:'رپورٹس', settings:'ترتیبات',
+      lockSwitch:'لاک / صارف تبدیل کریں', addItem:'+ آئٹم شامل کریں', completeSale:'سیل مکمل کریں', cart:'کارٹ', today:'آج', thisWeek:'اس ہفتے', thisMonth:'اس مہینے',
+      custom:'مخصوص تاریخ', revenue:'آمدنی', cost:'لاگت', profit:'منافع', loss:'نقصان', totalSale:'کل فروخت', addCustomer:'+ گاہک شامل کریں', save:'محفوظ کریں', cancel:'منسوخ' }
+  };
+  function t(key){
+    var lang = (state.currentStaff && state.currentStaff.lang) || 'en';
+    return (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || key;
+  }
+
+  // ================= resilient library loader =================
+  // Tries several CDNs in turn so one being blocked (ad-blocker, ISP, firewall) doesn't kill the feature.
+  var LIB = { barcode:false, pdf:false };
+  function loadScriptChain(urls, checkGlobal, onDone, idx){
+    idx = idx || 0;
+    if(idx>=urls.length){ onDone(false); return; }
+    if(checkGlobal()){ onDone(true); return; }
+    var s = document.createElement('script');
+    s.src = urls[idx];
+    s.onload = function(){ setTimeout(function(){ if(checkGlobal()) onDone(true); else loadScriptChain(urls, checkGlobal, onDone, idx+1); }, 30); };
+    s.onerror = function(){ loadScriptChain(urls, checkGlobal, onDone, idx+1); };
+    document.head.appendChild(s);
+  }
+  function loadBarcodeLib(cb){
+    loadScriptChain([
+      'https://cdnjs.cloudflare.com/ajax/libs/JsBarcode/3.11.5/JsBarcode.all.min.js',
+      'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
+      'https://unpkg.com/jsbarcode@3.11.5/dist/JsBarcode.all.min.js'
+    ], function(){ return typeof window.JsBarcode !== 'undefined'; }, function(ok){ LIB.barcode = ok; if(cb) cb(ok); if(state.tab==='barcodes') render(); });
+  }
+  function loadPdfLib(cb){
+    loadScriptChain([
+      'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+      'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
+      'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'
+    ], function(){ return typeof window.jspdf !== 'undefined'; }, function(ok){ LIB.pdf = ok; if(cb) cb(ok); });
+  }
+
+  // ================= IndexedDB helpers =================
+  function openDB(){
+    return new Promise(function(resolve,reject){
+      var req = indexedDB.open('ahms_db', 2);
+      req.onupgradeneeded = function(e){
+        var db = e.target.result;
+        if(!db.objectStoreNames.contains('items')) db.createObjectStore('items',{keyPath:'id'});
+        if(!db.objectStoreNames.contains('sales')) db.createObjectStore('sales',{keyPath:'id'});
+        if(!db.objectStoreNames.contains('customers')) db.createObjectStore('customers',{keyPath:'id'});
+        if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv',{keyPath:'key'});
+        if(!db.objectStoreNames.contains('stockLog')) db.createObjectStore('stockLog',{keyPath:'id'});
+      };
+      req.onsuccess = function(e){ resolve(e.target.result); };
+      req.onerror = function(e){ reject(e); };
+    });
+  }
+  function withStore(store, mode, fn){
+    return openDB().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(store, mode);
+        var os = tx.objectStore(store);
+        var result;
+        fn(os, function(r){ result = r; });
+        tx.oncomplete = function(){ resolve(result); };
+        tx.onerror = function(){ reject(tx.error); };
+      });
+    });
+  }
+  function getAll(store){ return withStore(store,'readonly', function(os,done){ var r=os.getAll(); r.onsuccess=function(){ done(r.result||[]); }; }); }
+  function putOne(store,obj){ return withStore(store,'readwrite', function(os,done){ os.put(obj); done(obj); }); }
+  function deleteOne(store,id){ return withStore(store,'readwrite', function(os,done){ os.delete(id); done(true); }); }
+  function getKV(key,fallback){ return withStore('kv','readonly', function(os,done){ var r=os.get(key); r.onsuccess=function(){ done(r.result?r.result.value:fallback); }; }); }
+  function setKV(key,value){ return withStore('kv','readwrite', function(os,done){ os.put({key:key,value:value}); done(value); }); }
+
+  function logStock(type,itemId,itemName,qtyChange,note){
+    return putOne('stockLog', {id:uid(),ts:Date.now(),type:type,itemId:itemId,itemName:itemName,qtyChange:qtyChange,note:note||'',staffName:state.currentStaff?state.currentStaff.name:''});
+  }
+
+  // ================= state =================
+  var state = {
+    items:[], sales:[], customers:[], stockLog:[], config:null,
+    currentStaff:null, tab:'dashboard',
+    invFilter:'all', invSearch:'',
+    cart:[], cartPaymentType:'cash', cartCustomerId:null, cartDiscount:0,
+    pinBuffer:'', reportRange:'today', reportFrom:null, reportTo:null
+  };
+
+  function uid(){ return 'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function money(n){ n=Number(n)||0; return 'Rs '+n.toLocaleString('en-PK',{maximumFractionDigits:0}); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtTime(ts){ var d=new Date(ts); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+  function fmtDate(ts){ var d=new Date(ts); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+  function startOfDay(d){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
+  function startOfWeek(d){ var x=startOfDay(d); var day=x.getDay(); var diff=(day===0?6:day-1); x.setDate(x.getDate()-diff); return x; }
+  function startOfMonth(d){ var x=startOfDay(d); x.setDate(1); return x; }
+  function plClass(n){ return n<0?'neg':(n>0?'pos':''); }
+
+  var toastTimer;
+  function toast(msg){
+    var el = document.getElementById('toastEl');
+    if(el) el.remove();
+    el = document.createElement('div'); el.id='toastEl'; el.className='toast'; el.textContent=msg;
+    document.body.appendChild(el);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.remove(); }, 2600);
+  }
+
+  // ================= roles =================
+  function role(){ return state.currentStaff ? state.currentStaff.role : 'entry'; }
+  function isAdmin(){ return role()==='admin'; }
+  function canEdit(){ return role()==='admin' || role()==='editor'; }   // add/edit/delete inventory, edit sales, delete customers
+  function canSettings(){ return role()==='admin'; }
+
+  // ================= env warning (file:// breaks Drive + reduces reliability) =================
+  function envWarningHTML(){
+    if(location.protocol==='file:'){
+      return '<div class="banner err">This copy is open as a local file. Barcode/Drive/offline features are unreliable this way — open it using your https:// hosted link instead (see SETUP-GUIDE.md).</div>';
+    }
+    return '';
+  }
+
+  // ================= boot =================
+  function boot(){
+    loadBarcodeLib(); loadPdfLib();
+    getKV('config', null).then(function(cfg){
+      state.config = cfg;
+      if(!cfg || !cfg.setupDone){ renderSetupWizard(); }
+      else { renderStaffPicker(); }
+    });
+  }
+  function loadData(){
+    return Promise.all([getAll('items'),getAll('sales'),getAll('customers'),getAll('stockLog')]).then(function(res){
+      state.items=res[0]; state.sales=res[1]; state.customers=res[2]; state.stockLog=res[3];
+    });
+  }
+  function markDirtyAndSync(){ scheduleAutoSync(); }
+
+  // ================= SETUP WIZARD =================
+  function renderSetupWizard(){
+    var lc = document.getElementById('lockContent');
+    lc.innerHTML = ''+
+    '<div class="setupwrap">'+
+      '<h1>Set up Allah Hoo Mobile Shop</h1>'+
+      '<p class="hint">One-time setup. Both owners get full admin access by default — you can add employee logins with limited access later from Settings.</p>'+
+      '<label>Asif Hussain — login PIN</label><input type="text" inputmode="numeric" maxlength="6" id="s_pin1" placeholder="e.g. 1122">'+
+      '<label>Faisal Ali — login PIN</label><input type="text" inputmode="numeric" maxlength="6" id="s_pin2" placeholder="e.g. 3344">'+
+      '<button class="btn btn-amber btn-block" style="margin-top:18px" id="s_save">Save &amp; continue</button>'+
+    '</div>';
+    document.getElementById('s_save').onclick = function(){
+      var p1=document.getElementById('s_pin1').value.trim(), p2=document.getElementById('s_pin2').value.trim();
+      if(p1.length<4||p2.length<4){ toast('Each PIN should be at least 4 digits'); return; }
+      var cfg = {
+        setupDone:true,
+        staff:[{id:'asif',name:'Asif Hussain',pin:p1,role:'admin',lang:'en'},{id:'faisal',name:'Faisal Ali',pin:p2,role:'admin',lang:'en'}],
+        categories:['mobile','accessory'],
+        driveClientId:'', driveConnected:false, lastBackupTs:0
+      };
+      setKV('config',cfg).then(function(){ state.config=cfg; renderStaffPicker(); toast('Setup complete'); });
+    };
+  }
+
+  // ================= LOGIN =================
+  function renderStaffPicker(){
+    var lc = document.getElementById('lockContent');
+    lc.innerHTML = ''+
+    '<div class="shoptitle">Allah Hoo Mobile Shop</div>'+
+    '<div class="shopsub">Thingi Colony — select your name</div>'+
+    '<div class="stafflist">'+ state.config.staff.map(function(s){ return '<button class="staffbtn" data-staff="'+s.id+'">'+esc(s.name)+'</button>'; }).join('') +'</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-staff]'), function(btn){
+      btn.onclick = function(){
+        var s = state.config.staff.find(function(x){ return x.id===btn.dataset.staff; });
+        renderPinPad('Enter PIN for '+s.name, function(entered){
+          if(entered===s.pin){ state.currentStaff=s; unlockApp(); return true; }
+          return false;
+        }, renderStaffPicker);
+      };
+    });
+  }
+  function renderPinPad(title, onComplete, onBack){
+    state.pinBuffer='';
+    var lc = document.getElementById('lockContent');
+    lc.innerHTML = '<div class="pinpad"><div class="shoptitle" style="font-size:15px">'+esc(title)+'</div>'+
+      '<div class="pindots" id="pindots"></div><div class="pinerr" id="pinerr"></div><div class="padgrid" id="padgrid"></div>'+
+      (onBack?'<button class="backlink" id="pinBack">&larr; Back</button>':'')+'</div>';
+    renderDots();
+    var keys=['1','2','3','4','5','6','7','8','9','','0','DEL'];
+    document.getElementById('padgrid').innerHTML = keys.map(function(k){
+      return k===''?'<div></div>':'<button class="padkey" data-key="'+k+'">'+(k==='DEL'?'&#9003;':k)+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.padkey'), function(btn){
+      btn.onclick = function(){
+        var k = btn.dataset.key;
+        if(k==='DEL'){ state.pinBuffer = state.pinBuffer.slice(0,-1); }
+        else if(state.pinBuffer.length<6){ state.pinBuffer += k; }
+        renderDots();
+        if(state.pinBuffer.length>=4){
+          var ok = onComplete(state.pinBuffer);
+          if(ok===false){
+            var e=document.getElementById('pinerr'); if(e) e.textContent='Incorrect PIN, try again';
+            state.pinBuffer=''; setTimeout(renderDots,50);
+          }
+        }
+      };
+    });
+    if(onBack){ var b=document.getElementById('pinBack'); if(b) b.onclick=onBack; }
+  }
+  function renderDots(){
+    var box=document.getElementById('pindots'); if(!box) return;
+    var html=''; for(var i=0;i<6;i++){ html+='<div class="pindot'+(i<state.pinBuffer.length?' filled':'')+'"></div>'; }
+    box.innerHTML=html;
+  }
+
+  // Re-authentication for sensitive actions: confirm the CURRENT logged-in user's own PIN
+  function requireReauth(actionLabel, onConfirm, onCancel){
+    var modal = document.createElement('div'); modal.className='modal-bg';
+    modal.innerHTML = '<div class="modal"><h3>Confirm your PIN</h3><p class="muted" style="font-size:12.5px;margin-top:-6px">'+esc(actionLabel)+'</p>'+
+      '<input type="text" inputmode="numeric" maxlength="6" id="reauthInput" placeholder="Your login PIN">'+
+      '<div class="pinerr" id="reauthErr" style="height:16px"></div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn btn-outline btn-block" id="reauthCancel">Cancel</button><button class="btn btn-navy btn-block" id="reauthOk">Confirm</button></div></div>';
+    document.body.appendChild(modal);
+    var input=document.getElementById('reauthInput');
+    setTimeout(function(){ input.focus(); },50);
+    function attempt(){
+      if(input.value.trim()===state.currentStaff.pin){ modal.remove(); onConfirm(); }
+      else{ document.getElementById('reauthErr').textContent='Incorrect PIN'; }
+    }
+    document.getElementById('reauthOk').onclick = attempt;
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
+    document.getElementById('reauthCancel').onclick = function(){ modal.remove(); if(onCancel) onCancel(); };
+  }
+
+  function unlockApp(){
+    document.getElementById('lockScreen').classList.add('hide');
+    document.getElementById('app').classList.add('show');
+    document.documentElement.dir = (state.currentStaff.lang==='ur') ? 'rtl' : 'ltr';
+    buildNav();
+    document.getElementById('headerStaff').innerHTML = '<b>'+esc(state.currentStaff.name)+'</b><span class="pill role" style="margin-top:2px;display:inline-block">'+role()+'</span>'+
+      '<div class="hbtns"><button id="langToggle">'+(state.currentStaff.lang==='ur'?'EN':'اردو')+'</button><button id="logoutBtn2">'+t('lockSwitch')+'</button></div>';
+    document.getElementById('logoutBtn2').onclick = lockApp;
+    document.getElementById('langToggle').onclick = function(){
+      state.currentStaff.lang = state.currentStaff.lang==='ur' ? 'en' : 'ur';
+      var s = state.config.staff.find(function(x){ return x.id===state.currentStaff.id; });
+      if(s) s.lang = state.currentStaff.lang;
+      setKV('config', state.config).then(function(){ document.documentElement.dir = state.currentStaff.lang==='ur'?'rtl':'ltr'; buildNav(); render(); });
+    };
+    loadData().then(function(){ maybeSilentDriveConnect(); render(); });
+  }
+  function lockApp(){
+    state.currentStaff=null; state.tab='dashboard'; state.cart=[];
+    document.getElementById('app').classList.remove('show');
+    document.getElementById('lockScreen').classList.remove('hide');
+    document.documentElement.dir='ltr';
+    renderStaffPicker();
+  }
+
+  // ================= nav (role-filtered) =================
+  function buildNav(){
+    var tabs = [
+      {id:'dashboard', ic:'&#9737;', label:t('dashboard'), show:true},
+      {id:'billing', ic:'&#128722;', label:t('billing'), show:true},
+      {id:'inventory', ic:'&#128230;', label:t('inventory'), show: role()!=='entry'},
+      {id:'khata', ic:'&#128179;', label:t('khata'), show:true},
+      {id:'barcodes', ic:'&#9776;', label:t('barcodes'), show: role()!=='entry'},
+      {id:'reports', ic:'&#128200;', label:t('reports'), show:true},
+      {id:'settings', ic:'&#9881;', label:t('settings'), show: canSettings()}
+    ];
+    var nav = document.getElementById('tabs');
+    var brand = nav.querySelector('.brand');
+    nav.innerHTML = '';
+    if(brand) nav.appendChild(brand); else nav.innerHTML = '<div class="brand"><b>Allah Hoo Mobile Shop</b><span>Thingi Colony</span></div>';
+    tabs.filter(function(x){ return x.show; }).forEach(function(x){
+      var b = document.createElement('button');
+      b.dataset.tab = x.id;
+      b.innerHTML = '<span class="ic">'+x.ic+'</span>'+esc(x.label);
+      b.onclick = function(){ state.tab=x.id; render(); };
+      nav.appendChild(b);
+    });
+    if(!tabs.some(function(x){ return x.show && x.id===state.tab; })) state.tab='dashboard';
+  }
+
+  function render(){
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button[data-tab]'), function(b){ b.classList.toggle('active', b.dataset.tab===state.tab); });
+    var main = document.getElementById('main');
+    if(state.tab==='dashboard') main.innerHTML = renderDashboard();
+    else if(state.tab==='billing') main.innerHTML = renderBilling();
+    else if(state.tab==='inventory') main.innerHTML = role()==='entry' ? '<div class="empty">You do not have access to Inventory.</div>' : renderInventory();
+    else if(state.tab==='khata') main.innerHTML = renderKhata();
+    else if(state.tab==='barcodes') main.innerHTML = role()==='entry' ? '<div class="empty">You do not have access to Barcodes.</div>' : renderBarcodes();
+    else if(state.tab==='reports') main.innerHTML = renderReports();
+    else if(state.tab==='settings') main.innerHTML = canSettings() ? renderSettings() : '<div class="empty">Admin access only.</div>';
+    wireTab();
+  }
+  function showLowStockModal(){
+    var lowStock = state.items.filter(function(it){ return it.stock<=3; });
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>Low stock items</h3>'+
+      (lowStock.length ? ('<table><tr><th>Item</th><th>Stock</th>'+(canEdit()?'<th></th>':'')+'</tr>'+
+        lowStock.map(function(it){ return '<tr><td>'+esc(it.name)+'</td><td class="badge-low">'+it.stock+'</td>'+
+          (canEdit()?'<td><button class="btn btn-outline btn-sm" data-edit="'+it.id+'">Edit</button></td>':'')+'</tr>'; }).join('')+'</table>')
+        : '<div class="empty">No low stock items</div>')+
+    '</div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(btn){
+      btn.onclick = function(){ closeModal(); var it=state.items.find(function(x){return x.id===btn.dataset.edit;}); if(it){ state.tab='inventory'; render(); setTimeout(function(){ itemFormModal(it); }, 50); } };
+    });
+  }
+  function wireDashboard(){
+    var b = document.getElementById('lowStockBanner'); if(b) b.onclick = showLowStockModal;
+    var c = document.getElementById('lowStockStatCard'); if(c) c.onclick = showLowStockModal;
+  }
+  function wireTab(){
+    if(state.tab==='dashboard') wireDashboard();
+    else if(state.tab==='billing') wireBilling();
+    else if(state.tab==='inventory' && role()!=='entry') wireInventory();
+    else if(state.tab==='khata') wireKhata();
+    else if(state.tab==='barcodes' && role()!=='entry') wireBarcodes();
+    else if(state.tab==='reports') wireReports();
+    else if(state.tab==='settings' && canSettings()) wireSettings();
+  }
+
+  // ================= DASHBOARD =================
+  function salesInRange(fromDate,toDate){
+    var t0=fromDate.getTime(), t1=toDate?toDate.getTime():Infinity;
+    return state.sales.filter(function(s){ return s.ts>=t0 && s.ts<=t1; });
+  }
+  function totalOf(list){ return list.reduce(function(s,x){ return s+x.total; },0); }
+  function profitOf(list){
+    var revenue = totalOf(list);
+    var cost = list.reduce(function(s,x){ return s + x.items.reduce(function(ss,l){ return ss + l.qty*(l.cost||0); },0); },0);
+    return revenue - cost;
+  }
+
+  function renderDashboard(){
+    var today=startOfDay(new Date()), week=startOfWeek(new Date()), month=startOfMonth(new Date());
+    var lowStock = state.items.filter(function(it){ return it.stock<=3; });
+    var stockValue = state.items.reduce(function(s,it){ return s+(it.costPrice||0)*(it.stock||0); },0);
+    var expectedSaleValue = state.items.reduce(function(s,it){ return s+(it.sellingPrice||0)*(it.stock||0); },0);
+    var potential = expectedSaleValue - stockValue;
+    var totalUdhaar = state.customers.reduce(function(s,c){ return s+(c.balance||0); },0);
+    var todaysTotal = totalOf(salesInRange(today));
+    var weekTotal = totalOf(salesInRange(week));
+    var monthTotal = totalOf(salesInRange(month));
+    var todaysProfit = profitOf(salesInRange(today));
+    var weekProfit = profitOf(salesInRange(week));
+    var monthProfit = profitOf(salesInRange(month));
+
+    return ''+ envWarningHTML() + renderBackupBanner() +
+    (lowStock.length ? ('<div class="banner warn" id="lowStockBanner" style="cursor:pointer"><span>&#9888; '+lowStock.length+' item(s) low on stock — tap to view</span></div>') : '')+
+    '<h2 class="pagetitle">'+t('dashboard')+'</h2>'+
+    '<div class="grid3">'+
+      '<div class="card stat"><b class="'+plClass(todaysTotal)+'">'+money(todaysTotal)+'</b><span>'+t('today')+' · '+salesInRange(today).length+' sales</span><div class="'+plClass(todaysProfit)+'" style="font-size:11px;margin-top:2px">'+(todaysProfit<0?'Loss ':'Profit ')+money(Math.abs(todaysProfit))+'</div></div>'+
+      '<div class="card stat"><b class="'+plClass(weekTotal)+'">'+money(weekTotal)+'</b><span>'+t('thisWeek')+'</span><div class="'+plClass(weekProfit)+'" style="font-size:11px;margin-top:2px">'+(weekProfit<0?'Loss ':'Profit ')+money(Math.abs(weekProfit))+'</div></div>'+
+      '<div class="card stat"><b class="'+plClass(monthTotal)+'">'+money(monthTotal)+'</b><span>'+t('thisMonth')+'</span><div class="'+plClass(monthProfit)+'" style="font-size:11px;margin-top:2px">'+(monthProfit<0?'Loss ':'Profit ')+money(Math.abs(monthProfit))+'</div></div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Inventory value overview</b>'+
+      '<div class="grid4" style="margin-top:10px">'+
+        '<div class="stat"><b>'+state.items.length+'</b><span>Items entered</span></div>'+
+        '<div class="stat"><b>'+money(stockValue)+'</b><span>Stock value (cost)</span></div>'+
+        '<div class="stat"><b>'+money(expectedSaleValue)+'</b><span>Expected sale value</span></div>'+
+        '<div class="stat"><b class="'+plClass(potential)+'">'+money(Math.abs(potential))+' '+(potential<0?'(loss)':(potential>0?'(profit)':''))+'</b><span>Potential margin</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div class="card stat" id="lowStockStatCard" style="'+(lowStock.length?'cursor:pointer':'')+'"><b class="'+(lowStock.length?'neg':'')+'">'+lowStock.length+'</b><span>Low stock (&le;3)'+(lowStock.length?' — tap to view':'')+'</span></div>'+
+      '<div class="card stat"><b class="'+(totalUdhaar>0?'neg':'')+'">'+money(totalUdhaar)+'</b><span>Total udhaar owed</span></div>'+
+    '</div>'+
+    '<div class="card"><b style="font-size:13px;color:var(--navy)">Recent sales</b>'+
+      (state.sales.length ? ('<table style="margin-top:8px"><tr><th>Time</th><th>By</th><th style="text-align:right">Total</th></tr>'+
+        state.sales.slice(-6).reverse().map(function(s){ return '<tr><td class="muted">'+fmtTime(s.ts)+'</td><td>'+esc(s.staffName||'-')+'</td><td style="text-align:right">'+money(s.total)+'</td></tr>'; }).join('')+'</table>')
+        : '<div class="empty">No sales recorded yet.</div>')+
+    '</div>';
+  }
+
+  function renderBackupBanner(){
+    var cfg = state.config;
+    var online = navigator.onLine;
+    if(!cfg.driveClientId) return '<div class="banner info">Google Drive backup isn\'t set up yet — see Settings.</div>';
+    var last = cfg.lastBackupTs||0;
+    var hrs = last ? (Date.now()-last)/3600000 : 999;
+    if(hrs>24 || !last){
+      return '<div class="banner warn"><span>'+(last?('Last Drive backup: '+fmtTime(last)):'No Drive backup yet')+(online?'':' — offline, will sync when internet is back')+'</span>'+
+        (online?'<button class="btn btn-navy btn-sm" id="dashBackupBtn">Backup now</button>':'')+'</div>';
+    }
+    return '';
+  }
+
+  // ================= BILLING =================
+  function cartSubtotal(){ return state.cart.reduce(function(s,l){ return s+l.qty*l.rate; },0); }
+  function cartTotal(){ return Math.max(0, cartSubtotal() - (Number(state.cartDiscount)||0)); }
+
+  function topSellers(limit){
+    var totals = {};
+    state.sales.forEach(function(s){ if(s.type==='return') return; s.items.forEach(function(l){
+      if(!totals[l.itemId]) totals[l.itemId] = {itemId:l.itemId, name:l.name, qty:0};
+      totals[l.itemId].qty += l.qty;
+    }); });
+    return Object.keys(totals).map(function(k){ return totals[k]; }).sort(function(a,b){ return b.qty-a.qty; }).slice(0, limit||5);
+  }
+
+  function renderBilling(){
+    var lowStock = state.items.filter(function(it){ return it.stock<=3; });
+    var top = topSellers(5).map(function(x){ return state.items.find(function(it){ return it.id===x.itemId; }) ? Object.assign({soldQty:x.qty}, state.items.find(function(it){ return it.id===x.itemId; })) : null; }).filter(Boolean);
+    return ''+
+    (lowStock.length ? ('<div class="banner warn"><span>&#9888; Low stock: '+lowStock.slice(0,3).map(function(i){return esc(i.name);}).join(', ')+(lowStock.length>3?' +'+(lowStock.length-3)+' more':'')+'</span></div>') : '')+
+    '<h2 class="pagetitle">'+t('billing')+'</h2>'+
+    (top.length ? ('<div class="quicksellrow">'+top.map(function(it){
+      return '<div class="quicksellchip" data-quickadd="'+it.id+'"><b>'+esc(it.name)+'</b><span>'+it.soldQty+' sold · '+money(it.sellingPrice)+'</span></div>';
+    }).join('')+'</div>') : '')+
+    '<div class="scanbox">'+
+      '<label style="color:#DCE3F0">1) Scan barcode or type it, then press Enter</label>'+
+      '<input type="text" id="scanInput" placeholder="Scan with barcode scanner or type code…" autocomplete="off">'+
+      '<div class="hint">A USB/Bluetooth scanner types the code and Enter automatically.</div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<label>2) Or pick an item from the dropdown</label>'+
+      '<div class="row"><select id="itemDropdownSel" style="flex:1">'+
+        '<option value="">— choose item —</option>'+
+        state.items.map(function(it){ return '<option value="'+it.id+'">'+esc(it.name)+' — '+money(it.sellingPrice)+' (stock '+it.stock+')</option>'; }).join('')+
+      '</select><button class="btn btn-navy" id="dropdownAddBtn">Add</button></div>'+
+    '</div>'+
+    '<div class="searchbar"><input type="text" id="nameSearch" placeholder="3) Or find item by name…"></div>'+
+    '<div id="nameResults"></div>'+
+    '<div class="card">'+
+      '<label>4) Or tap a picture to add it — good for a quick visual pick</label>'+
+      '<div id="pickGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:340px;overflow:auto">'+
+        (state.items.length ? state.items.map(function(it){
+          return '<div data-tileadd="'+it.id+'" style="cursor:pointer;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px;background:'+(it.stock<=0?'#f3f3f1':'#fff')+';opacity:'+(it.stock<=0?'.5':'1')+'">'+
+            (it.image ? ('<img src="'+it.image+'" style="width:100%;height:60px;object-fit:cover;border-radius:6px;margin-bottom:4px">') :
+              ('<div style="width:100%;height:60px;border-radius:6px;margin-bottom:4px;background:'+(it.category==='mobile'?'#E8EEFC':'#FBF0DC')+';display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-size:20px">'+esc((it.name||'?').charAt(0).toUpperCase())+'</div>'))+
+            '<div style="font-size:11px;font-weight:600;line-height:1.2">'+esc(it.name)+'</div>'+
+            '<div style="font-size:10px;color:var(--ink-soft)">'+money(it.sellingPrice)+'</div>'+
+          '</div>';
+        }).join('') : '<div class="empty">No items yet</div>')+
+      '</div>'+
+    '</div>'+
+    '<div class="card" id="cartCard"><b style="font-size:13px;color:var(--navy)">'+t('cart')+'</b>'+renderCart()+'</div>'+
+    (state.cart.length ? (
+      '<div class="card">'+
+        '<label>Payment type</label>'+
+        '<select id="paymentTypeSelect"><option value="cash" '+(state.cartPaymentType==='cash'?'selected':'')+'>Cash</option>'+
+          '<option value="credit" '+(state.cartPaymentType==='credit'?'selected':'')+'>Udhaar (credit)</option></select>'+
+        (state.cartPaymentType==='credit' ? renderCreditCustomerPicker() : '')+
+        '<label>Discount (Rs)</label><input type="number" min="0" id="discountInput" value="'+state.cartDiscount+'">'+
+      '</div>'+
+      '<button class="btn btn-navy btn-block" id="checkoutBtn">'+t('completeSale')+' · '+money(cartTotal())+'</button>'
+    ) : '');
+  }
+  function renderCreditCustomerPicker(){
+    var opts = state.customers.map(function(c){ return '<option value="'+c.id+'" '+(state.cartCustomerId===c.id?'selected':'')+'>'+esc(c.name)+' ('+esc(c.phone||'')+')</option>'; }).join('');
+    return '<label>Customer</label><select id="creditCustomerSel"><option value="">— select or add in Khata tab —</option>'+opts+'</select>';
+  }
+  function renderCart(){
+    if(!state.cart.length) return '<div class="empty">Cart is empty. Scan or search an item to add it.</div>';
+    var lines = state.cart.map(function(l, idx){
+      return '<div class="cartline" data-idx="'+idx+'"><div class="name"><b>'+esc(l.name)+'</b><span>'+esc(l.barcode||'manual')+'</span></div>'+
+        '<input type="number" min="1" class="qtyInput" value="'+l.qty+'"><input type="number" min="0" class="rateInput" value="'+l.rate+'">'+
+        '<button class="remove" data-remove="'+idx+'">&times;</button></div>';
+    }).join('');
+    var sub = cartSubtotal(), disc = Number(state.cartDiscount)||0;
+    return lines + '<div class="totalbar"><span>Subtotal</span><span>'+money(sub)+'</span></div>'+
+      (disc>0 ? ('<div class="totalbar"><span>Discount</span><span class="neg">-'+money(disc)+'</span></div>') : '')+
+      '<div class="totalbar grand"><span>Total</span><span>'+money(cartTotal())+'</span></div>';
+  }
+  function addToCart(item){
+    var existing = state.cart.find(function(l){ return l.itemId===item.id; });
+    if(existing){ existing.qty+=1; } else { state.cart.push({itemId:item.id,name:item.name,barcode:item.barcode,qty:1,rate:item.sellingPrice,cost:item.costPrice||0}); }
+    render(); toast(item.name+' added');
+  }
+
+  function wireBilling(){
+    var scanInput = document.getElementById('scanInput');
+    if(scanInput){
+      scanInput.focus();
+      scanInput.addEventListener('keydown', function(e){
+        if(e.key==='Enter'){
+          var code = scanInput.value.trim(); scanInput.value='';
+          if(!code) return;
+          var item = state.items.find(function(it){ return it.barcode===code; });
+          if(item){ if(item.stock<=0){ toast('Out of stock: '+item.name); return; } addToCart(item); }
+          else toast('No item found for code '+code);
+        }
+      });
+    }
+    var nameSearch = document.getElementById('nameSearch');
+    var nameResultsBox = document.getElementById('nameResults');
+    if(nameSearch){
+      nameSearch.addEventListener('input', function(){
+        var q = nameSearch.value.trim().toLowerCase();
+        if(!q){ nameResultsBox.innerHTML=''; return; }
+        var matches = state.items.filter(function(it){ return it.name.toLowerCase().indexOf(q)!==-1; }).slice(0,6);
+        nameResultsBox.innerHTML = matches.length ? ('<div class="card" style="padding:6px 10px">'+matches.map(function(it){
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">'+
+            '<div><b style="font-size:13px">'+esc(it.name)+'</b><div class="muted" style="font-size:11px">'+money(it.sellingPrice)+' · stock '+it.stock+'</div></div>'+
+            '<button class="btn btn-outline btn-sm" data-additem2="'+it.id+'">Add</button></div>';
+        }).join('')+'</div>') : '<div class="empty">No matching items</div>';
+      });
+    }
+    // Event delegation: results are re-rendered on every keystroke, so bind once on the
+    // stable parent container rather than on the buttons themselves (which get replaced).
+    if(nameResultsBox && !nameResultsBox.dataset.wired){
+      nameResultsBox.dataset.wired = '1';
+      nameResultsBox.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-additem2]');
+        if(!btn) return;
+        var it = state.items.find(function(x){ return x.id===btn.dataset.additem2; });
+        if(it){ if(it.stock<=0){ toast('Out of stock'); return; } addToCart(it); nameSearch.value=''; nameResultsBox.innerHTML=''; }
+      });
+    }
+    var pickGridBox = document.getElementById('pickGrid');
+    if(pickGridBox && !pickGridBox.dataset.wired){
+      pickGridBox.dataset.wired = '1';
+      pickGridBox.addEventListener('click', function(e){
+        var tile = e.target.closest('[data-tileadd]');
+        if(!tile) return;
+        var it = state.items.find(function(x){ return x.id===tile.dataset.tileadd; });
+        if(it){ if(it.stock<=0){ toast('Out of stock'); return; } addToCart(it); }
+      });
+    }
+    var dropdownAddBtn = document.getElementById('dropdownAddBtn');
+    if(dropdownAddBtn){
+      dropdownAddBtn.onclick = function(){
+        var sel = document.getElementById('itemDropdownSel');
+        var it = state.items.find(function(x){ return x.id===sel.value; });
+        if(!it){ toast('Choose an item first'); return; }
+        if(it.stock<=0){ toast('Out of stock'); return; }
+        addToCart(it);
+      };
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-quickadd]'), function(chip){
+      chip.onclick = function(){ var it=state.items.find(function(x){return x.id===chip.dataset.quickadd;}); if(it){ if(it.stock<=0){toast('Out of stock');return;} addToCart(it); } };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.cartline'), function(row){
+      var idx = Number(row.dataset.idx);
+      row.querySelector('.qtyInput').addEventListener('change', function(e){ state.cart[idx].qty=Math.max(1,Number(e.target.value)||1); render(); });
+      row.querySelector('.rateInput').addEventListener('change', function(e){ state.cart[idx].rate=Math.max(0,Number(e.target.value)||0); render(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-remove]'), function(btn){ btn.onclick=function(){ state.cart.splice(Number(btn.dataset.remove),1); render(); }; });
+    var paySel = document.getElementById('paymentTypeSelect');
+    if(paySel) paySel.addEventListener('change', function(){ state.cartPaymentType = paySel.value; render(); });
+    var custSel = document.getElementById('creditCustomerSel');
+    if(custSel) custSel.addEventListener('change', function(){ state.cartCustomerId = custSel.value || null; });
+    var discInput = document.getElementById('discountInput');
+    if(discInput) discInput.addEventListener('change', function(){ state.cartDiscount = Math.max(0, Number(discInput.value)||0); render(); });
+
+    var checkout = document.getElementById('checkoutBtn');
+    if(checkout){
+      checkout.onclick = function(){
+        if(checkout.disabled) return;
+        if(!state.cart.length) return;
+        if(state.cartPaymentType==='credit' && !state.cartCustomerId){ toast('Select a customer for udhaar sale'); return; }
+        for(var i=0;i<state.cart.length;i++){
+          var l=state.cart[i]; var it=state.items.find(function(x){return x.id===l.itemId;});
+          if(it && it.stock<l.qty){ toast('Not enough stock for '+it.name); return; }
+        }
+        checkout.disabled = true; checkout.textContent = 'Saving…';
+        var sale = {
+          id:uid(), ts:Date.now(), type:'sale',
+          staffId:state.currentStaff.id, staffName:state.currentStaff.name,
+          paymentType:state.cartPaymentType, customerId:state.cartPaymentType==='credit'?state.cartCustomerId:null,
+          items: state.cart.map(function(l){ return {itemId:l.itemId,name:l.name,qty:l.qty,rate:l.rate,cost:l.cost||0}; }),
+          subtotal: cartSubtotal(), discount: Number(state.cartDiscount)||0, total: cartTotal()
+        };
+        var puts = [putOne('sales', sale)];
+        state.cart.forEach(function(l){
+          var it = state.items.find(function(x){ return x.id===l.itemId; });
+          if(it){ it.stock = Math.max(0, it.stock-l.qty); puts.push(putOne('items', it)); puts.push(logStock('sale', it.id, it.name, -l.qty, 'Sold in sale #'+sale.id.slice(-5))); }
+        });
+        if(sale.paymentType==='credit'){
+          var cust = state.customers.find(function(c){ return c.id===sale.customerId; });
+          if(cust){ cust.balance=(cust.balance||0)+sale.total; cust.history=cust.history||[]; cust.history.push({ts:sale.ts,type:'credit',amount:sale.total,note:'Sale #'+sale.id.slice(-5)}); puts.push(putOne('customers', cust)); }
+        }
+        Promise.all(puts).then(function(){
+          markDirtyAndSync();
+          loadData().then(function(){
+            showReceiptPrompt(sale);
+            state.cart=[]; state.cartPaymentType='cash'; state.cartCustomerId=null; state.cartDiscount=0;
+          });
+        }).catch(function(){ toast('Could not save sale'); checkout.disabled=false; checkout.textContent=t('completeSale'); });
+      };
+    }
+    var dashBtn = document.getElementById('dashBackupBtn'); if(dashBtn) dashBtn.onclick=function(){ driveBackupNow(true); };
+  }
+
+  function showReceiptPrompt(sale){
+    var modal = document.createElement('div'); modal.className='modal-bg';
+    modal.innerHTML = '<div class="modal"><h3>Sale completed</h3><div class="stat" style="margin-bottom:12px"><b style="font-size:22px;color:var(--green)">'+money(sale.total)+'</b><span>Transaction #'+sale.id.slice(-5)+'</span></div>'+
+      '<div class="row"><button class="btn btn-outline btn-block" id="rc_done">Done</button><button class="btn btn-navy btn-block" id="rc_print">Print receipt</button></div></div>';
+    document.body.appendChild(modal);
+    document.getElementById('rc_done').onclick = function(){ modal.remove(); state.tab='dashboard'; render(); };
+    document.getElementById('rc_print').onclick = function(){ printReceipt(sale); modal.remove(); state.tab='dashboard'; render(); };
+  }
+  function printReceipt(sale){
+    var area = document.getElementById('printArea'); area.innerHTML='';
+    var wrap = document.createElement('div'); wrap.className='receipt';
+    wrap.innerHTML = ''+
+      '<h3>Allah Hoo Mobile Shop</h3><div class="center">Thingi Colony</div><div class="center">0300-7736777 / 0300-5950440</div><hr>'+
+      '<div>Date: '+fmtTime(sale.ts)+'</div><div>Txn #'+sale.id.slice(-6)+' &nbsp; By: '+esc(sale.staffName||'')+'</div><hr>'+
+      '<table>'+sale.items.map(function(l){ return '<tr><td colspan="2">'+esc(l.name)+'</td></tr><tr><td>'+Math.abs(l.qty)+' x '+money(l.rate)+'</td><td style="text-align:right">'+money(l.qty*l.rate)+'</td></tr>'; }).join('')+'</table><hr>'+
+      '<table><tr><td>Subtotal</td><td style="text-align:right">'+money(sale.subtotal||sale.total)+'</td></tr>'+
+      (sale.discount ? ('<tr><td>Discount</td><td style="text-align:right">-'+money(sale.discount)+'</td></tr>') : '')+
+      '<tr><td><b>Total</b></td><td style="text-align:right"><b>'+money(sale.total)+'</b></td></tr>'+
+      (sale.paymentType==='credit'?'<tr><td colspan="2">Payment: Udhaar (credit)</td></tr>':'')+'</table><hr>'+
+      '<svg id="rcBarcode" style="width:100%"></svg>'+
+      '<div class="center" style="margin-top:6px">Returns accepted within 7 days with receipt</div>'+
+      '<div class="center">Thank you for shopping with us</div>';
+    area.appendChild(wrap);
+    drawBarcodeSVG(document.getElementById('rcBarcode'), 'RET-'+sale.id.slice(-8), {width:1.6,height:40,fontSize:10});
+    setTimeout(function(){ window.print(); }, 150);
+  }
+
+  // ================= INVENTORY =================
+  function categoryPillClass(cat){ return cat==='mobile' ? 'mobile' : (cat==='accessory' ? 'accessory' : 'othercat'); }
+  function categoryLabel(cat){ if(cat==='mobile') return 'Mobile'; if(cat==='accessory') return 'Accessory'; return cat; }
+
+  function renderInventory(){
+    var list = state.items.filter(function(it){
+      if(state.invFilter!=='all' && it.category!==state.invFilter) return false;
+      if(state.invSearch && it.name.toLowerCase().indexOf(state.invSearch.toLowerCase())===-1) return false;
+      return true;
+    });
+    var cats = state.config.categories || ['mobile','accessory'];
+    return ''+
+    '<h2 class="pagetitle">'+t('inventory')+'</h2>'+
+    '<div class="searchbar"><input type="text" id="invSearchInput" placeholder="Search items…" value="'+esc(state.invSearch)+'">'+
+      (canEdit() ? '<button class="btn btn-amber" id="addItemBtn">'+t('addItem')+'</button>' : '')+'</div>'+
+    '<div class="filterchips">'+chip('all','All')+cats.map(function(c){ return chip(c, categoryLabel(c)); }).join('')+'</div>'+
+    '<div class="row" style="margin-bottom:12px">'+
+      '<button class="btn btn-outline" id="pdfCurrentBtn">Download inventory PDF</button>'+
+    '</div>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Stock activity between dates</b>'+
+      '<div class="row" style="margin-top:8px"><input type="date" id="logFrom"><input type="date" id="logTo"><button class="btn btn-navy" id="pdfLogBtn">Download PDF</button></div>'+
+    '</div>'+
+    '<div class="card" style="padding:0">'+(list.length ? (
+      '<table><tr><th>Item</th><th>Price</th><th>Stock</th>'+(canEdit()?'<th></th>':'')+'</tr>'+
+      list.map(function(it){
+        return '<tr><td><b style="font-size:13px">'+esc(it.name)+'</b><br><span class="pill '+categoryPillClass(it.category)+'">'+esc(categoryLabel(it.category))+'</span> <span class="muted" style="font-size:11px">'+esc(it.barcode)+'</span></td>'+
+          '<td>'+money(it.sellingPrice)+'</td><td class="'+(it.stock<=3?'badge-low':'')+'">'+it.stock+'</td>'+
+          (canEdit() ? '<td><button class="btn btn-outline btn-sm" data-edit="'+it.id+'">Edit</button></td>' : '')+'</tr>';
+      }).join('')+'</table>'
+    ) : '<div class="empty">No items yet.</div>')+'</div>';
+  }
+  function chip(val,label){ return '<button class="chip '+(state.invFilter===val?'active':'')+'" data-filter="'+val+'">'+esc(label)+'</button>'; }
+
+  function itemFormModal(existing){
+    var isEdit = !!existing;
+    var it = existing || {id:null,name:'',category:(state.config.categories||['accessory'])[0],barcode:'',costPrice:0,sellingPrice:0,stock:0};
+    var cats = state.config.categories || ['mobile','accessory'];
+    var catOpts = cats.map(function(c){ return '<option value="'+esc(c)+'" '+(it.category===c?'selected':'')+'>'+esc(categoryLabel(c))+'</option>'; }).join('') + '<option value="__new__">+ Add new category…</option>';
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal">'+
+      '<button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>'+(isEdit?'Edit item':'Add new item')+'</h3>'+
+      '<label>Item name</label><input type="text" id="f_name" value="'+esc(it.name)+'" placeholder="e.g. Samsung A16 Charger">'+
+      '<label>Category</label><select id="f_category">'+catOpts+'</select>'+
+      '<label>Barcode</label><div class="row"><input type="text" id="f_barcode" value="'+esc(it.barcode)+'" placeholder="Scan or leave blank" style="flex:1"><button class="btn btn-outline" id="f_genBarcode" type="button">Generate</button></div>'+
+      '<div class="grid2"><div><label>Cost price</label><input type="number" id="f_cost" value="'+it.costPrice+'"></div><div><label>Selling price</label><input type="number" id="f_sell" value="'+it.sellingPrice+'"></div></div>'+
+      '<label>Stock quantity</label><input type="number" id="f_stock" value="'+it.stock+'">'+
+      '<label>Photo (optional — helps staff pick the right item visually)</label>'+
+      (it.image ? ('<img src="'+it.image+'" style="max-width:100%;max-height:120px;border-radius:8px;margin-bottom:6px">') : '')+
+      '<input type="file" id="f_image" accept="image/*">'+
+      '<div class="row" style="margin-top:16px">'+(isEdit?'<button class="btn btn-danger" id="f_delete" type="button">Delete</button>':'')+
+        '<button class="btn btn-navy btn-block" id="f_save" type="button">'+(isEdit?'Save changes':'Add item')+'</button></div>'+
+    '</div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    document.getElementById('f_category').addEventListener('change', function(e){
+      if(e.target.value==='__new__'){
+        var name = window.prompt('New category name (e.g. Chargers, Cases, SIM cards):');
+        if(name && name.trim()){
+          name = name.trim();
+          state.config.categories = state.config.categories || ['mobile','accessory'];
+          if(state.config.categories.indexOf(name)===-1) state.config.categories.push(name);
+          setKV('config', state.config).then(function(){
+            var opt = document.createElement('option'); opt.value=name; opt.textContent=name; opt.selected=true;
+            e.target.insertBefore(opt, e.target.lastElementChild);
+          });
+        } else { e.target.value = it.category; }
+      }
+    });
+    document.getElementById('f_genBarcode').onclick = function(){
+      getKV('lastBarcodeSeq',0).then(function(seq){ seq=(seq||0)+1; setKV('lastBarcodeSeq',seq).then(function(){ document.getElementById('f_barcode').value='AHM'+String(seq).padStart(6,'0'); }); });
+    };
+    if(isEdit){
+      document.getElementById('f_delete').onclick = function(){
+        requireReauth('Delete "'+it.name+'"', function(){
+          closeModal();
+          deleteOne('items', it.id).then(function(){ logStock('delete-item', it.id, it.name, 0, 'Deleted'); markDirtyAndSync(); loadData().then(function(){ render(); toast('Item deleted'); }); });
+        });
+      };
+    }
+    var saveBtn = document.getElementById('f_save');
+    saveBtn.onclick = function(){
+      if(saveBtn.disabled) return;
+      var name = document.getElementById('f_name').value.trim();
+      if(!name){ toast('Enter an item name'); return; }
+      var origBtnText = saveBtn.textContent;
+      var imageFileInput = document.getElementById('f_image');
+      var finish = function(barcode, imageData){
+        var data = { id: it.id || uid(), name:name, category:document.getElementById('f_category').value, barcode:barcode,
+          costPrice:Number(document.getElementById('f_cost').value)||0, sellingPrice:Number(document.getElementById('f_sell').value)||0,
+          stock:Number(document.getElementById('f_stock').value)||0, image: imageData!==undefined ? imageData : (it.image||null) };
+        var stockDelta = data.stock - (isEdit ? it.stock : 0);
+        requireReauth(isEdit?('Save changes to "'+name+'"'):('Add new item "'+name+'"'), function(){
+          saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+          putOne('items', data).then(function(){
+            logStock(isEdit?'edit-item':'add-item', data.id, data.name, stockDelta, isEdit?'Edited':'Added new item');
+            markDirtyAndSync();
+            closeModal();
+            loadData().then(function(){ render(); toast(isEdit?'Item updated':'Item added'); });
+          }).catch(function(){ toast('Save failed, try again'); saveBtn.disabled=false; saveBtn.textContent=origBtnText; });
+        }, function(){ saveBtn.disabled=false; saveBtn.textContent=origBtnText; });
+      };
+      var withImage = function(barcode){
+        if(imageFileInput.files && imageFileInput.files[0]){ fileToBase64(imageFileInput.files[0]).then(function(img){ finish(barcode, img); }).catch(function(){ finish(barcode); }); }
+        else { finish(barcode); }
+      };
+      var barcodeVal = document.getElementById('f_barcode').value.trim();
+      if(barcodeVal){ withImage(barcodeVal); }
+      else { getKV('lastBarcodeSeq',0).then(function(seq){ seq=(seq||0)+1; setKV('lastBarcodeSeq',seq).then(function(){ withImage('AHM'+String(seq).padStart(6,'0')); }); }); }
+    };
+  }
+  function closeModal(){ var m=document.getElementById('modalBg'); if(m) m.remove(); }
+
+  function wireInventory(){
+    var search = document.getElementById('invSearchInput');
+    if(search) search.addEventListener('input', function(){ state.invSearch=search.value; render(); var el=document.getElementById('invSearchInput'); if(el){ el.focus(); el.setSelectionRange(999,999); } });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-filter]'), function(btn){ btn.onclick=function(){ state.invFilter=btn.dataset.filter; render(); }; });
+    var addBtn = document.getElementById('addItemBtn'); if(addBtn) addBtn.onclick=function(){ itemFormModal(null); };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(btn){ btn.onclick=function(){ var it=state.items.find(function(x){return x.id===btn.dataset.edit;}); if(it) itemFormModal(it); }; });
+    document.getElementById('pdfCurrentBtn').onclick = function(){
+      var rows = state.items.map(function(it){ return [it.name, categoryLabel(it.category), it.barcode, money(it.costPrice), money(it.sellingPrice), it.stock, money(it.costPrice*it.stock)]; });
+      buildSimplePDF('Current Inventory — '+fmtDate(Date.now()), ['Item','Category','Barcode','Cost','Price','Stock','Value'], rows, 'inventory.pdf');
+    };
+    document.getElementById('pdfLogBtn').onclick = function(){
+      var fromV = document.getElementById('logFrom').value, toV = document.getElementById('logTo').value;
+      if(!fromV || !toV){ toast('Pick both dates'); return; }
+      var f = new Date(fromV).getTime(), tt = new Date(toV).getTime()+86399999;
+      var rows = state.stockLog.filter(function(l){ return l.ts>=f && l.ts<=tt; }).sort(function(a,b){ return a.ts-b.ts; })
+        .map(function(l){ return [fmtDate(l.ts)+' '+new Date(l.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}), l.type, l.itemName, (l.qtyChange>0?'+':'')+l.qtyChange, l.staffName, l.note]; });
+      if(!rows.length){ toast('No activity in that range'); return; }
+      buildSimplePDF('Stock Activity: '+fromV+' to '+toV, ['Date','Type','Item','Qty change','By','Note'], rows, 'stock-activity.pdf');
+    };
+  }
+
+  // ================= KHATA =================
+  function renderKhata(){
+    var totalOwed = state.customers.reduce(function(s,c){ return s+(c.balance||0); },0);
+    return ''+
+    '<h2 class="pagetitle">'+t('khata')+'</h2>'+
+    '<div class="card stat"><b class="'+(totalOwed>0?'neg':'')+'">'+money(totalOwed)+'</b><span>Total owed by customers</span></div>'+
+    '<div class="row" style="margin-bottom:12px">'+
+      '<button class="btn btn-amber" id="addCustomerBtn" style="flex:1">'+t('addCustomer')+'</button>'+
+      '<button class="btn btn-outline" id="khataReportBtn">Download Khata report</button>'+
+    '</div>'+
+    '<div class="card" style="padding:0">'+(state.customers.length ? (
+      '<table><tr><th>Customer</th><th>Balance</th><th></th></tr>'+
+      state.customers.map(function(c){
+        return '<tr><td><b style="font-size:13px">'+esc(c.name)+'</b><br><span class="muted" style="font-size:11px">'+esc(c.phone||'')+'</span></td>'+
+          '<td class="'+(c.balance>0?'balpos':'balzero')+'">'+money(c.balance||0)+'</td>'+
+          '<td><button class="btn btn-outline btn-sm" data-viewcust="'+c.id+'">View</button></td></tr>';
+      }).join('')+'</table>'
+    ) : '<div class="empty">No customers yet.</div>')+'</div>';
+  }
+
+  function fileToBase64(file){
+    return new Promise(function(resolve,reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function customerModal(existingId){
+    var c = existingId ? state.customers.find(function(x){ return x.id===existingId; }) : {id:null,name:'',phone:'',cnic:'',description:'',balance:0,billImage:null,history:[]};
+    var isEdit = !!existingId;
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>'+(isEdit?esc(c.name):'Add customer')+'</h3>'+
+      (isEdit ? (
+        '<div class="stat" style="margin-bottom:10px"><b class="'+(c.balance>0?'balpos':'balzero')+'" style="font-size:20px">'+money(c.balance||0)+'</b><span>Current balance owed</span></div>'+
+        (c.cnic?('<p class="muted" style="font-size:12px">CNIC: '+esc(c.cnic)+'</p>'):'')+
+        (c.description?('<p class="muted" style="font-size:12px">'+esc(c.description)+'</p>'):'')+
+        (c.billImage?('<img src="'+c.billImage+'" style="max-width:100%;border-radius:8px;margin:8px 0">'):'')+
+        (canEdit() ? (
+          '<label>Record a payment received</label><div class="row"><input type="number" id="c_payment" placeholder="Amount"><button class="btn btn-green" id="c_addPayment" type="button">Add payment</button></div>'+
+          '<label>Add udhaar (credit)</label><div class="row"><input type="number" id="c_credit" placeholder="Amount"><input type="text" id="c_creditNote" placeholder="Description (optional)"><button class="btn btn-outline" id="c_addCredit" type="button">Add udhaar</button></div>'
+        ) : '')+
+        '<label style="margin-top:14px">History</label><div class="card" style="max-height:180px;overflow:auto">'+
+          ((c.history||[]).slice().reverse().map(function(h){
+            return '<div class="ledgerrow"><span>'+fmtTime(h.ts)+' — '+esc(h.note||(h.type==='payment'?'Payment received':'Udhaar added'))+'</span><span class="'+(h.type==='payment'?'balzero':'balpos')+'">'+(h.type==='payment'?'-':'+')+money(Math.abs(h.amount))+'</span></div>';
+          }).join('') || '<div class="empty">No entries yet</div>')+'</div>'+
+        '<button class="btn btn-outline btn-block" id="c_statement" type="button" style="margin-top:12px">Download this customer\'s statement</button>'+
+        (canEdit() ? '<button class="btn btn-danger btn-block" id="c_delete" type="button" style="margin-top:10px">Delete customer</button>' : '')
+      ) : (
+        '<label>Customer name</label><input type="text" id="c_name" value="'+esc(c.name)+'">'+
+        '<label>Phone number</label><input type="tel" id="c_phone" value="'+esc(c.phone)+'">'+
+        '<label>Opening amount owed (optional)</label><input type="number" id="c_amount" value="0">'+
+        '<label>Description (optional)</label><input type="text" id="c_desc" placeholder="e.g. reason for udhaar">'+
+        '<label>CNIC (optional)</label><input type="text" id="c_cnic" placeholder="xxxxx-xxxxxxx-x">'+
+        '<label>Bill / photo (optional)</label><input type="file" id="c_bill" accept="image/*">'+
+        '<button class="btn btn-navy btn-block" id="c_save" type="button" style="margin-top:16px">Add customer</button>'
+      ))+
+    '</div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    if(!isEdit){
+      var saveBtn = document.getElementById('c_save');
+      saveBtn.onclick = function(){
+        if(saveBtn.disabled) return;
+        var name = document.getElementById('c_name').value.trim();
+        if(!name){ toast('Enter a name'); return; }
+        saveBtn.disabled=true; saveBtn.textContent='Saving…';
+        var amount = Number(document.getElementById('c_amount').value)||0;
+        var fileInput = document.getElementById('c_bill');
+        var proceed = function(billImage){
+          var data = {id:uid(), name:name, phone:document.getElementById('c_phone').value.trim(), cnic:document.getElementById('c_cnic').value.trim(),
+            description:document.getElementById('c_desc').value.trim(), balance:amount, billImage:billImage||null,
+            history: amount>0 ? [{ts:Date.now(),type:'credit',amount:amount,note:'Opening balance'}] : []};
+          putOne('customers', data).then(function(){ markDirtyAndSync(); closeModal(); loadData().then(function(){ render(); toast('Customer added'); }); })
+            .catch(function(){ toast('Save failed'); saveBtn.disabled=false; saveBtn.textContent='Add customer'; });
+        };
+        if(fileInput.files && fileInput.files[0]){ fileToBase64(fileInput.files[0]).then(proceed).catch(function(){ proceed(null); }); }
+        else { proceed(null); }
+      };
+    } else {
+      if(canEdit()){
+        document.getElementById('c_addPayment').onclick = function(){
+          var amt=Number(document.getElementById('c_payment').value)||0; if(amt<=0){ toast('Enter a valid amount'); return; }
+          c.balance=(c.balance||0)-amt; c.history=c.history||[]; c.history.push({ts:Date.now(),type:'payment',amount:-amt,note:'Payment received'});
+          putOne('customers', c).then(function(){ markDirtyAndSync(); closeModal(); loadData().then(function(){ render(); toast('Payment recorded'); }); });
+        };
+        document.getElementById('c_addCredit').onclick = function(){
+          var amt=Number(document.getElementById('c_credit').value)||0; if(amt<=0){ toast('Enter a valid amount'); return; }
+          var note = document.getElementById('c_creditNote').value.trim() || 'Manual udhaar';
+          c.balance=(c.balance||0)+amt; c.history=c.history||[]; c.history.push({ts:Date.now(),type:'credit',amount:amt,note:note});
+          putOne('customers', c).then(function(){ markDirtyAndSync(); closeModal(); loadData().then(function(){ render(); toast('Udhaar added'); }); });
+        };
+        var delBtn = document.getElementById('c_delete');
+        if(delBtn) delBtn.onclick = function(){
+          requireReauth('Delete customer "'+c.name+'"', function(){
+            closeModal();
+            deleteOne('customers', c.id).then(function(){ markDirtyAndSync(); loadData().then(function(){ render(); toast('Customer deleted'); }); });
+          });
+        };
+      }
+      document.getElementById('c_statement').onclick = function(){
+        var rows = (c.history||[]).map(function(h){ return [fmtTime(h.ts), h.type, h.note||'', (h.type==='payment'?'-':'+')+money(Math.abs(h.amount))]; });
+        buildSimplePDF('Statement — '+c.name, ['Date','Type','Note','Amount'], rows, 'statement-'+c.name.replace(/\s+/g,'-')+'.pdf');
+      };
+    }
+  }
+  function wireKhata(){
+    var addBtn = document.getElementById('addCustomerBtn'); if(addBtn) addBtn.onclick=function(){ customerModal(null); };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-viewcust]'), function(btn){ btn.onclick=function(){ customerModal(btn.dataset.viewcust); }; });
+    var reportBtn = document.getElementById('khataReportBtn');
+    if(reportBtn) reportBtn.onclick = function(){
+      var rows = state.customers.map(function(c){ return [c.name, c.phone||'', c.cnic||'', money(c.balance||0)]; });
+      buildSimplePDF('Khata Report — '+fmtDate(Date.now()), ['Customer','Phone','CNIC','Balance'], rows, 'khata-report.pdf');
+    };
+  }
+
+  // ================= BARCODES =================
+  function renderBarcodes(){
+    var opts = state.items.map(function(it){ return '<option value="'+it.id+'">'+esc(it.name)+' — '+esc(it.barcode)+'</option>'; }).join('');
+    return ''+ envWarningHTML() +
+    (!LIB.barcode ? ('<div class="banner err"><span>Barcode library still loading or blocked. If this doesn\'t clear in a few seconds, an ad-blocker or privacy extension in your browser may be blocking script downloads — try disabling it for this site, or open the page in a private/incognito window.</span>'+
+      '<button class="btn btn-navy btn-sm" id="retryBarcodeLib">Retry</button></div>') : '')+
+    '<h2 class="pagetitle">'+t('barcodes')+'</h2>'+
+    '<div class="card">'+
+      '<label>Pick an existing item</label><select id="bc_item"><option value="">— choose item —</option>'+opts+'</select>'+
+      '<label>Or type any code</label><input type="text" id="bc_freecode" placeholder="e.g. AHM000123">'+
+      '<div class="row" style="margin-top:12px"><button class="btn btn-amber" id="bc_generate">Generate new code</button><button class="btn btn-navy" id="bc_preview">Preview barcode</button></div>'+
+      '<div id="bc_previewBox"></div>'+
+    '</div>'+
+    '<div class="card" id="bc_batchCard">'+
+      '<b style="font-size:13px;color:var(--navy)">Print labels</b>'+
+      '<p class="muted" style="font-size:12px;margin:6px 0 4px">Select items and print sticker labels to paste on stock.</p>'+
+      '<p class="muted" style="font-size:11.5px;margin:0 0 10px">Tip: in the print dialog set <b>Scale to 100%</b> (not "Fit to page") — shrinking the barcode makes it unreadable to laser scanners. Print on plain paper first to test a scan before using sticker sheets.</p>'+
+      '<div id="bc_itemList">'+(state.items.map(function(it){
+        return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><input type="checkbox" class="bc_check" value="'+it.id+'"> '+esc(it.name)+' <span class="muted">('+esc(it.barcode)+')</span></label>';
+      }).join('') || '<div class="empty">No items yet.</div>')+'</div>'+
+      (state.items.length ? '<button class="btn btn-navy btn-block" id="bc_printBtn" style="margin-top:12px">Print selected labels</button>' : '')+
+    '</div>';
+  }
+  function drawBarcodeSVG(svgEl, code, opts){
+    opts = opts || {};
+    if(!LIB.barcode || typeof JsBarcode==='undefined'){
+      svgEl.outerHTML = '<div style="color:var(--red);font-size:12px;padding:10px;border:1px dashed var(--red);border-radius:6px">Barcode library not loaded — check for an ad-blocker/privacy extension blocking scripts, or try again.</div>';
+      return false;
+    }
+    try{
+      JsBarcode(svgEl, code, {format:'CODE128', width:opts.width||2.4, height:opts.height||72, displayValue:true, fontSize:opts.fontSize||14, margin:opts.margin||14, textMargin:4});
+      return true;
+    }catch(e){
+      svgEl.outerHTML = '<div style="color:var(--red);font-size:12px;padding:10px;border:1px dashed var(--red);border-radius:6px">Could not generate a barcode for this code.</div>';
+      return false;
+    }
+  }
+  function wireBarcodes(){
+    var retryBtn = document.getElementById('retryBarcodeLib');
+    if(retryBtn) retryBtn.onclick = function(){ retryBtn.textContent='Retrying…'; retryBtn.disabled=true; loadBarcodeLib(function(ok){ if(!ok) toast('Still blocked — try an incognito window or a different network'); }); };
+    var itemSel = document.getElementById('bc_item'), freeInput = document.getElementById('bc_freecode');
+    if(itemSel) itemSel.addEventListener('change', function(){ var it=state.items.find(function(x){return x.id===itemSel.value;}); if(it) freeInput.value=it.barcode; });
+    var genBtn = document.getElementById('bc_generate');
+    if(genBtn) genBtn.onclick = function(){ getKV('lastBarcodeSeq',0).then(function(seq){ seq=(seq||0)+1; setKV('lastBarcodeSeq',seq).then(function(){ freeInput.value='AHM'+String(seq).padStart(6,'0'); itemSel.value=''; }); }); };
+    var prevBtn = document.getElementById('bc_preview');
+    if(prevBtn) prevBtn.onclick = function(){
+      var code = freeInput.value.trim(); if(!code){ toast('Enter or generate a code first'); return; }
+      var it = state.items.find(function(x){ return x.barcode===code; });
+      var box = document.getElementById('bc_previewBox');
+      box.innerHTML = '<div class="barcode-preview">'+(it?('<div class="lbl-name">'+esc(it.name)+'</div><div class="lbl-price">'+money(it.sellingPrice)+'</div>'):'')+'<svg id="previewSvg"></svg></div>';
+      drawBarcodeSVG(document.getElementById('previewSvg'), code);
+    };
+    var printBtn = document.getElementById('bc_printBtn');
+    if(printBtn){
+      printBtn.onclick = function(){
+        var checked = Array.prototype.slice.call(document.querySelectorAll('.bc_check:checked'));
+        if(!checked.length){ toast('Select at least one item'); return; }
+        var area = document.getElementById('printArea'); area.innerHTML='';
+        var ok = 0;
+        checked.forEach(function(chk){
+          var it = state.items.find(function(x){ return x.id===chk.value; }); if(!it) return;
+          var wrap = document.createElement('div'); wrap.className='printlabel';
+          wrap.innerHTML = '<div class="pn">'+esc(it.name)+'</div><div class="pp">'+money(it.sellingPrice)+'</div><svg class="plsvg"></svg>';
+          area.appendChild(wrap);
+        });
+        var svgs = area.querySelectorAll('.plsvg');
+        checked.forEach(function(chk,i){ var it=state.items.find(function(x){return x.id===chk.value;}); if(it&&svgs[i]){ if(drawBarcodeSVG(svgs[i], it.barcode, {width:2.6,height:85,fontSize:15,margin:16})) ok++; } });
+        if(ok===0){ toast('Barcodes could not be generated — check your internet connection'); return; }
+        setTimeout(function(){ window.print(); }, 200);
+      };
+    }
+  }
+
+  // ================= REPORTS =================
+  function renderReports(){
+    var now=new Date(), from, to=null;
+    if(state.reportRange==='today') from=startOfDay(now);
+    else if(state.reportRange==='week') from=startOfWeek(now);
+    else if(state.reportRange==='month') from=startOfMonth(now);
+    else { from = state.reportFrom ? new Date(state.reportFrom) : startOfDay(now); to = state.reportTo ? new Date(new Date(state.reportTo).getTime()+86399999) : new Date(); }
+    var filtered = salesInRange(from, to).sort(function(a,b){ return b.ts-a.ts; });
+    var revenue = filtered.reduce(function(s,x){ return s+x.total; },0);
+    var cost = filtered.reduce(function(s,x){ return s + x.items.reduce(function(ss,l){ return ss + l.qty*(l.cost||0); },0); },0);
+    var profit = revenue - cost;
+    var itemTotals = {};
+    filtered.forEach(function(s){ s.items.forEach(function(l){ itemTotals[l.name]=(itemTotals[l.name]||0)+l.qty; }); });
+    var topItems = Object.keys(itemTotals).map(function(k){ return {name:k,qty:itemTotals[k]}; }).sort(function(a,b){ return b.qty-a.qty; }).slice(0,5);
+
+    var saleCount = filtered.filter(function(s){ return s.type!=='return'; }).length;
+    var returnCount = filtered.filter(function(s){ return s.type==='return'; }).length;
+    var unitsSold = filtered.reduce(function(s,x){ return s + x.items.reduce(function(ss,l){ return ss + l.qty; },0); },0);
+    var avgSale = saleCount ? (revenue/saleCount) : 0;
+    var creditIssued = filtered.filter(function(s){ return s.paymentType==='credit' && s.type!=='return'; }).reduce(function(s,x){ return s+x.total; },0);
+    var summaryLine = saleCount ? (
+      saleCount+' sale(s) and '+returnCount+' return(s), '+unitsSold+' unit(s) net movement. Average sale value '+money(avgSale)+
+      (creditIssued>0 ? ('. '+money(creditIssued)+' of this was sold on udhaar (credit).') : '.')+
+      ' Net result: '+(profit<0?'a loss of ':'a profit of ')+money(Math.abs(profit))+'.'
+    ) : 'No transactions in this period yet.';
+
+    return ''+
+    '<h2 class="pagetitle">'+t('reports')+'<button class="btn btn-outline btn-sm" id="pdfReportBtn">Download PDF</button></h2>'+
+    '<div class="filterchips">'+repChip('today',t('today'))+repChip('week',t('thisWeek'))+repChip('month',t('thisMonth'))+repChip('custom',t('custom'))+'</div>'+
+    (state.reportRange==='custom' ? ('<div class="row" style="margin-bottom:12px"><input type="date" id="repFrom" value="'+(state.reportFrom||'')+'"><input type="date" id="repTo" value="'+(state.reportTo||'')+'"><button class="btn btn-navy" id="repApply">Apply</button></div>') : '')+
+    '<div class="grid3">'+
+      '<div class="card stat"><b>'+money(revenue)+'</b><span>'+t('totalSale')+'</span></div>'+
+      '<div class="card stat"><b>'+money(cost)+'</b><span>'+t('cost')+'</span></div>'+
+      '<div class="card stat"><b class="'+plClass(profit)+'">'+money(Math.abs(profit))+'</b><span>'+(profit<0?t('loss'):t('profit'))+'</span></div>'+
+    '</div>'+
+    '<div class="card"><b style="font-size:13px;color:var(--navy)">Summary</b><p style="font-size:13px;margin:8px 0 0;line-height:1.5">'+esc(summaryLine)+'</p></div>'+
+    '<div class="card"><b style="font-size:13px;color:var(--navy)">Best-selling items</b>'+
+      (topItems.length ? ('<table style="margin-top:8px">'+topItems.map(function(t2){ return '<tr><td>'+esc(t2.name)+'</td><td style="text-align:right">'+t2.qty+' pcs</td></tr>'; }).join('')+'</table>') : '<div class="empty">No sales in this period</div>')+
+    '</div>'+
+    '<div class="card"><b style="font-size:13px;color:var(--navy)">Transactions</b>'+
+      (filtered.length ? ('<table style="margin-top:8px"><tr><th>Time</th><th>Items</th><th>Type</th><th style="text-align:right">Total</th><th></th></tr>'+
+        filtered.map(function(s){
+          var isReturn = s.type==='return';
+          var daysSince = (Date.now()-s.ts)/86400000;
+          var canReturn = !isReturn && daysSince<=7;
+          return '<tr><td class="muted">'+fmtTime(s.ts)+(s.edited?' <span class="muted" style="font-size:10px">(edited)</span>':'')+'<br><span class="muted" style="font-size:10.5px">'+esc(s.staffName||'')+'</span></td>'+
+            '<td>'+s.items.map(function(l){ return esc(l.name)+' &times;'+Math.abs(l.qty); }).join(', ')+'</td>'+
+            '<td>'+(isReturn?'<span class="pill return">Return</span>':('<span class="pill '+(s.paymentType==='credit'?'credit':'cash')+'">'+(s.paymentType==='credit'?'Udhaar':'Cash')+'</span>'))+'</td>'+
+            '<td style="text-align:right">'+money(s.total)+'</td>'+
+            '<td>'+(canReturn?'<button class="btn btn-outline btn-sm" data-return="'+s.id+'">Return</button>':(!isReturn && daysSince>7?'<span class="muted" style="font-size:10.5px">Return window closed</span>':''))+
+              (canEdit() && !isReturn ? ' <button class="btn btn-outline btn-sm" data-editsale="'+s.id+'">Edit</button>' : '')+
+              (canEdit() && isReturn ? ' <button class="btn btn-danger btn-sm" data-undoreturn="'+s.id+'">Undo</button>' : '')+'</td></tr>';
+        }).join('')+'</table>') : '<div class="empty">No transactions in this period</div>')+
+    '</div>';
+  }
+  function repChip(val,label){ return '<button class="chip '+(state.reportRange===val?'active':'')+'" data-rep="'+val+'">'+esc(label)+'</button>'; }
+
+  // How much of each line in a sale has already been returned (across all return records referencing it)
+  function alreadyReturnedForSale(saleId){
+    var totals = {};
+    state.sales.forEach(function(s){
+      if(s.type==='return' && s.refSaleId===saleId){
+        s.items.forEach(function(l){ totals[l.itemId] = (totals[l.itemId]||0) + Math.abs(l.qty); });
+      }
+    });
+    return totals;
+  }
+
+  function returnModal(saleId){
+    var sale = state.sales.find(function(s){ return s.id===saleId; }); if(!sale) return;
+    var already = alreadyReturnedForSale(sale.id);
+    var lines = sale.items.map(function(l, idx){
+      var remaining = l.qty - (already[l.itemId]||0);
+      return {l:l, idx:idx, remaining:remaining};
+    });
+    if(lines.every(function(x){ return x.remaining<=0; })){ toast('Everything on this sale has already been returned'); return; }
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>Return items — sale '+fmtTime(sale.ts)+'</h3>'+
+      lines.map(function(x){
+        if(x.remaining<=0) return '<div class="row" style="align-items:center;margin-bottom:8px"><span style="flex:1;font-size:13px" class="muted">'+esc(x.l.name)+' — already fully returned</span></div>';
+        return '<div class="row" style="align-items:center;margin-bottom:8px"><span style="flex:1;font-size:13px">'+esc(x.l.name)+' (sold '+x.l.qty+(x.remaining<x.l.qty?', '+x.remaining+' returnable':'')+')</span>'+
+          '<input type="number" min="0" max="'+x.remaining+'" value="0" class="retQty" data-idx="'+x.idx+'" data-max="'+x.remaining+'" style="width:70px"></div>';
+      }).join('')+
+      '<button class="btn btn-danger btn-block" id="ret_confirm" style="margin-top:12px">Process return</button></div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    document.getElementById('ret_confirm').onclick = function(){
+      var qtyByIdx = {};
+      Array.prototype.forEach.call(document.querySelectorAll('.retQty'), function(inp){
+        var max = Number(inp.dataset.max)||0;
+        var v = Math.max(0, Math.min(max, Number(inp.value)||0));
+        qtyByIdx[Number(inp.dataset.idx)] = v;
+      });
+      if(!Object.keys(qtyByIdx).some(function(k){ return qtyByIdx[k]>0; })){ toast('Enter a return quantity'); return; }
+      requireReauth('Process return for sale '+fmtTime(sale.ts), function(){
+        closeModal();
+        var retLines=[], retTotal=0;
+        sale.items.forEach(function(l, idx){ var q=qtyByIdx[idx]||0; if(q>0){ retLines.push({itemId:l.itemId,name:l.name,qty:-q,rate:l.rate,cost:l.cost||0}); retTotal += -q*l.rate; } });
+        var ret = {id:uid(), ts:Date.now(), type:'return', refSaleId:sale.id, staffId:state.currentStaff.id, staffName:state.currentStaff.name,
+          paymentType:sale.paymentType, customerId:sale.customerId||null, items:retLines, subtotal:retTotal, discount:0, total:retTotal};
+        var puts=[putOne('sales', ret)];
+        retLines.forEach(function(l){ var it=state.items.find(function(x){return x.id===l.itemId;}); if(it){ it.stock=it.stock+Math.abs(l.qty); puts.push(putOne('items', it)); puts.push(logStock('return', it.id, it.name, Math.abs(l.qty), 'Returned from sale #'+sale.id.slice(-5))); } });
+        if(sale.paymentType==='credit' && sale.customerId){
+          var cust = state.customers.find(function(c){ return c.id===sale.customerId; });
+          if(cust){ cust.balance=(cust.balance||0)+retTotal; cust.history=cust.history||[]; cust.history.push({ts:ret.ts,type:'credit',amount:retTotal,note:'Return adjustment'}); puts.push(putOne('customers', cust)); }
+        }
+        Promise.all(puts).then(function(){
+          markDirtyAndSync();
+          loadData().then(function(){
+            render();
+            var modal = document.createElement('div'); modal.className='modal-bg';
+            modal.innerHTML = '<div class="modal"><h3>&#10003; Return processed</h3>'+
+              '<p style="font-size:13.5px">'+money(Math.abs(retTotal))+' refunded'+(sale.paymentType==='credit'?' from udhaar balance':'')+'. Stock has been added back automatically.</p>'+
+              '<button class="btn btn-navy btn-block" id="ret_ok">OK</button></div>';
+            document.body.appendChild(modal);
+            document.getElementById('ret_ok').onclick = function(){ modal.remove(); };
+          });
+        });
+      });
+    };
+  }
+
+  function undoReturnModal(returnId){
+    var ret = state.sales.find(function(s){ return s.id===returnId; }); if(!ret) return;
+    requireReauth('Undo this return (reverses stock and totals)', function(){
+      var puts = [deleteOne('sales', ret.id)];
+      ret.items.forEach(function(l){
+        var it = state.items.find(function(x){ return x.id===l.itemId; });
+        if(it){ it.stock = Math.max(0, it.stock - Math.abs(l.qty)); puts.push(putOne('items', it)); puts.push(logStock('undo-return', it.id, it.name, -Math.abs(l.qty), 'Undid return')); }
+      });
+      if(ret.paymentType==='credit' && ret.customerId){
+        var cust = state.customers.find(function(c){ return c.id===ret.customerId; });
+        if(cust){ cust.balance = (cust.balance||0) - ret.total; puts.push(putOne('customers', cust)); }
+      }
+      Promise.all(puts).then(function(){ markDirtyAndSync(); loadData().then(function(){ render(); toast('Return undone'); }); });
+    });
+  }
+
+  function editSaleModal(saleId){
+    var sale = state.sales.find(function(s){ return s.id===saleId; }); if(!sale) return;
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>Edit sale — '+fmtTime(sale.ts)+'</h3><p class="muted" style="font-size:12px;margin-top:-6px">Correct quantities or discount if this entry was made wrongly. Stock is adjusted automatically.</p>'+
+      sale.items.map(function(l,idx){ return '<div class="row" style="align-items:center;margin-bottom:8px"><span style="flex:1;font-size:13px">'+esc(l.name)+' @ '+money(l.rate)+'</span>'+
+        '<input type="number" min="0" value="'+l.qty+'" class="editQty" data-idx="'+idx+'" style="width:70px"></div>'; }).join('')+
+      '<label>Discount (Rs)</label><input type="number" min="0" id="edit_discount" value="'+(sale.discount||0)+'">'+
+      '<button class="btn btn-navy btn-block" id="edit_confirm" style="margin-top:12px">Save corrected entry</button></div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    document.getElementById('edit_confirm').onclick = function(){
+      var newQtys = Array.prototype.map.call(document.querySelectorAll('.editQty'), function(inp){ return Math.max(0, Number(inp.value)||0); });
+      var newDiscount = Math.max(0, Number(document.getElementById('edit_discount').value)||0);
+      requireReauth('Edit sale from '+fmtTime(sale.ts), function(){
+        closeModal();
+        var puts = [];
+        var newSubtotal = 0;
+        sale.items.forEach(function(l, idx){
+          var oldQty = l.qty, newQty = newQtys[idx];
+          var delta = oldQty - newQty; // positive delta => stock increases (less sold)
+          var it = state.items.find(function(x){ return x.id===l.itemId; });
+          if(it && delta!==0){ it.stock = Math.max(0, it.stock + delta); puts.push(putOne('items', it)); puts.push(logStock('edit-sale', it.id, it.name, delta, 'Sale edited #'+sale.id.slice(-5))); }
+          l.qty = newQty;
+          newSubtotal += newQty * l.rate;
+        });
+        var oldTotal = sale.total;
+        sale.subtotal = newSubtotal; sale.discount = newDiscount; sale.total = Math.max(0, newSubtotal - newDiscount);
+        sale.edited = true; sale.editedAt = Date.now();
+        puts.push(putOne('sales', sale));
+        if(sale.paymentType==='credit' && sale.customerId){
+          var cust = state.customers.find(function(c){ return c.id===sale.customerId; });
+          if(cust){ cust.balance = (cust.balance||0) + (sale.total - oldTotal); puts.push(putOne('customers', cust)); }
+        }
+        Promise.all(puts).then(function(){ markDirtyAndSync(); loadData().then(function(){ render(); toast('Entry corrected'); }); });
+      });
+    };
+  }
+
+  function wireReports(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-rep]'), function(btn){ btn.onclick=function(){ state.reportRange=btn.dataset.rep; render(); }; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-return]'), function(btn){ btn.onclick=function(){ returnModal(btn.dataset.return); }; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-editsale]'), function(btn){ btn.onclick=function(){ editSaleModal(btn.dataset.editsale); }; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-undoreturn]'), function(btn){ btn.onclick=function(){ undoReturnModal(btn.dataset.undoreturn); }; });
+    var applyBtn = document.getElementById('repApply');
+    if(applyBtn) applyBtn.onclick = function(){ state.reportFrom=document.getElementById('repFrom').value; state.reportTo=document.getElementById('repTo').value; render(); };
+    var pdfBtn = document.getElementById('pdfReportBtn');
+    if(pdfBtn) pdfBtn.onclick = function(){
+      var now=new Date(), from,to=null,label;
+      if(state.reportRange==='today'){ from=startOfDay(now); label='Today'; }
+      else if(state.reportRange==='week'){ from=startOfWeek(now); label='This week'; }
+      else if(state.reportRange==='month'){ from=startOfMonth(now); label='This month'; }
+      else { from=state.reportFrom?new Date(state.reportFrom):startOfDay(now); to=state.reportTo?new Date(new Date(state.reportTo).getTime()+86399999):new Date(); label=(state.reportFrom||'?')+' to '+(state.reportTo||'?'); }
+      var filtered = salesInRange(from,to);
+      var rows = filtered.map(function(s){ return [fmtTime(s.ts), s.staffName||'', s.type==='return'?'Return':(s.paymentType==='credit'?'Udhaar':'Cash'), s.items.map(function(l){return l.name+' x'+Math.abs(l.qty);}).join(', '), money(s.total)]; });
+      buildSimplePDF('Sales Report — '+label, ['Date','Staff','Type','Items','Total'], rows, 'sales-report.pdf');
+    };
+  }
+
+  // ================= PDF helper =================
+  function buildSimplePDF(title, columns, rows, filename){
+    if(!LIB.pdf || typeof window.jspdf==='undefined'){ toast('PDF library not loaded yet — check for an ad-blocker blocking scripts, or try again in a moment'); loadPdfLib(); return; }
+    var doc = new window.jspdf.jsPDF();
+    doc.setFontSize(14); doc.text(title,14,16);
+    doc.setFontSize(9); doc.text('Allah Hoo Mobile Shop — Thingi Colony',14,22);
+    var y=32, startX=14, totalW=182, colW=totalW/columns.length, colX=[];
+    columns.forEach(function(c,i){ colX.push(startX+i*colW); });
+    doc.setFontSize(9); doc.setFont(undefined,'bold');
+    columns.forEach(function(c,i){ doc.text(String(c), colX[i], y); });
+    doc.setFont(undefined,'normal'); y+=5; doc.line(14,y-3,196,y-3); y+=3;
+    rows.forEach(function(row){
+      if(y>282){ doc.addPage(); y=20; }
+      row.forEach(function(cell,i){
+        var text = String(cell==null?'':cell);
+        if(text.length>28) text = text.slice(0,26)+'…';
+        doc.text(text, colX[i], y);
+      });
+      y+=7;
+    });
+    if(!rows.length){ doc.text('No records in this range.', 14, y); }
+    doc.save(filename);
+  }
+
+  // ================= SETTINGS =================
+  function renderSettings(){
+    var cfg = state.config;
+    var driveStatus = cfg.driveConnected ? 'Connected' : 'Not connected';
+    return ''+ envWarningHTML() +
+    '<h2 class="pagetitle">'+t('settings')+'</h2>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Simple backup (recommended)</b>'+
+      '<p class="muted" style="font-size:12px;margin:6px 0">No Google Cloud setup needed. Download a backup file anytime and save it yourself — to Google Drive, WhatsApp, email, a USB drive, wherever. Restore it on any device the same way.</p>'+
+      '<div class="row"><button class="btn btn-amber btn-block" id="set_exportFile">Download backup file</button></div>'+
+      '<label style="margin-top:10px">Restore from a backup file</label>'+
+      '<input type="file" id="set_importFile" accept="application/json">'+
+    '</div>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Advanced: automatic Google Drive sync (optional)</b>'+
+      '<p class="muted" style="font-size:11.5px;margin:6px 0">Requires a one-time Google Cloud setup — see SETUP-GUIDE.md. Skip this if the simple backup above works for you.</p>'+
+      '<p class="muted" style="font-size:12px;margin:6px 0">Status: <b>'+driveStatus+'</b>'+(cfg.lastBackupTs?(' · Last backup: '+fmtTime(cfg.lastBackupTs)):'')+'</p>'+
+      '<label>OAuth Client ID (from Google Cloud Console)</label>'+
+      '<input type="text" id="set_clientId" value="'+esc(cfg.driveClientId||'')+'" placeholder="xxxxxxxx.apps.googleusercontent.com">'+
+      '<div class="row" style="margin-top:10px"><button class="btn btn-outline" id="set_saveClientId">Save Client ID</button><button class="btn btn-navy" id="set_connectDrive">Connect Drive</button></div>'+
+      '<div class="row" style="margin-top:8px"><button class="btn btn-amber btn-block" id="set_backupNow">Backup now</button><button class="btn btn-outline btn-block" id="set_restore">Restore from Drive</button></div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<b style="font-size:13px;color:var(--navy)">Staff &amp; access control</b>'+
+      '<table style="margin-top:8px"><tr><th>Name</th><th>Role</th><th>Language</th><th></th></tr>'+
+        cfg.staff.map(function(s){ return '<tr><td>'+esc(s.name)+'</td><td><span class="pill role">'+s.role+'</span></td><td>'+(s.lang==='ur'?'Urdu':'English')+'</td>'+
+          '<td><button class="btn btn-outline btn-sm" data-editstaff="'+s.id+'">Edit</button></td></tr>'; }).join('')+
+      '</table>'+
+      '<button class="btn btn-amber btn-block" id="addStaffBtn" style="margin-top:12px">+ Add staff login</button>'+
+      '<p class="muted" style="font-size:11.5px;margin-top:10px"><b>Entry</b>: can only make sales &amp; Khata entries. <b>Editor</b>: can also edit/delete stock, customers and past entries. <b>Admin</b>: full access including these settings.</p>'+
+    '</div>'+
+    '<div class="card"><b style="font-size:13px;color:var(--navy)">About this data</b>'+
+      '<p class="muted" style="font-size:12px;margin:6px 0 0">All data is stored on this device and works fully offline. Connect Google Drive above to keep a backup and use the same data on another phone/PC.</p></div>';
+  }
+  function staffFormModal(existingId){
+    var s = existingId ? state.config.staff.find(function(x){ return x.id===existingId; }) : {id:null,name:'',pin:'',role:'entry',lang:'en'};
+    var isEdit = !!existingId;
+    var html = '<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" id="modalClose">&times;</button>'+
+      '<h3>'+(isEdit?'Edit staff':'Add staff login')+'</h3>'+
+      '<label>Name</label><input type="text" id="st_name" value="'+esc(s.name)+'">'+
+      '<label>Login PIN</label><input type="text" inputmode="numeric" maxlength="6" id="st_pin" value="'+esc(s.pin)+'">'+
+      '<label>Role</label><select id="st_role"><option value="entry" '+(s.role==='entry'?'selected':'')+'>Entry only (sales/entries)</option><option value="editor" '+(s.role==='editor'?'selected':'')+'>Editor (can edit/delete)</option><option value="admin" '+(s.role==='admin'?'selected':'')+'>Admin (full access)</option></select>'+
+      '<label>Language</label><select id="st_lang"><option value="en" '+(s.lang==='en'?'selected':'')+'>English</option><option value="ur" '+(s.lang==='ur'?'selected':'')+'>Urdu</option></select>'+
+      '<div class="row" style="margin-top:16px">'+(isEdit?'<button class="btn btn-danger" id="st_delete" type="button">Remove</button>':'')+
+        '<button class="btn btn-navy btn-block" id="st_save" type="button">'+t('save')+'</button></div>'+
+    '</div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html; document.body.appendChild(wrap.firstChild);
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target.id==='modalBg') closeModal(); });
+    if(isEdit){
+      document.getElementById('st_delete').onclick = function(){
+        var admins = state.config.staff.filter(function(x){ return x.role==='admin'; });
+        if(s.role==='admin' && admins.length<=1){ toast('At least one admin must remain'); return; }
+        state.config.staff = state.config.staff.filter(function(x){ return x.id!==s.id; });
+        setKV('config', state.config).then(function(){ closeModal(); render(); toast('Staff removed'); });
+      };
+    }
+    document.getElementById('st_save').onclick = function(){
+      var name = document.getElementById('st_name').value.trim(), pin=document.getElementById('st_pin').value.trim();
+      if(!name || pin.length<4){ toast('Enter a name and at least a 4-digit PIN'); return; }
+      var role = document.getElementById('st_role').value, lang = document.getElementById('st_lang').value;
+      if(isEdit){ s.name=name; s.pin=pin; s.role=role; s.lang=lang; }
+      else { state.config.staff.push({id:uid(), name:name, pin:pin, role:role, lang:lang}); }
+      setKV('config', state.config).then(function(){ closeModal(); render(); toast(isEdit?'Staff updated':'Staff added'); });
+    };
+  }
+  function exportBackupFile(){
+    Promise.all([getAll('items'),getAll('sales'),getAll('customers')]).then(function(res){
+      var payload = {exportedAt:Date.now(), items:res[0], sales:res[1], customers:res[2], config: state.config};
+      var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'ahms-backup-'+fmtDate(Date.now()).replace(/\s+/g,'-')+'.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast('Backup file downloaded');
+    });
+  }
+  function importBackupFile(file){
+    requireReauth('Restore data from a backup file (replaces data on this device)', function(){
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          var payload = JSON.parse(reader.result);
+          var puts = [];
+          (payload.items||[]).forEach(function(it){ puts.push(putOne('items', it)); });
+          (payload.sales||[]).forEach(function(s){ puts.push(putOne('sales', s)); });
+          (payload.customers||[]).forEach(function(c){ puts.push(putOne('customers', c)); });
+          Promise.all(puts).then(function(){ loadData().then(function(){ render(); toast('Data restored from file'); }); });
+        }catch(e){ toast('That file could not be read — make sure it\'s a backup .json file'); }
+      };
+      reader.readAsText(file);
+    });
+  }
+  function wireSettings(){
+    document.getElementById('set_exportFile').onclick = exportBackupFile;
+    document.getElementById('set_importFile').addEventListener('change', function(e){
+      if(e.target.files && e.target.files[0]) importBackupFile(e.target.files[0]);
+    });
+    document.getElementById('set_saveClientId').onclick = function(){
+      state.config.driveClientId = document.getElementById('set_clientId').value.trim();
+      setKV('config', state.config).then(function(){ toast('Client ID saved'); });
+    };
+    document.getElementById('set_connectDrive').onclick = driveConnect;
+    document.getElementById('set_backupNow').onclick = function(){ driveBackupNow(true); };
+    document.getElementById('set_restore').onclick = driveRestore;
+    document.getElementById('addStaffBtn').onclick = function(){ staffFormModal(null); };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-editstaff]'), function(btn){ btn.onclick=function(){ staffFormModal(btn.dataset.editstaff); }; });
+  }
+
+  // ================= GOOGLE DRIVE SYNC =================
+  var driveTokenClient=null, driveAccessToken=null;
+  var FILE_NAME = 'ahms_shop_backup.json';
+
+  function isSecureOrigin(){ return location.protocol==='https:' || location.hostname==='localhost'; }
+
+  function ensureTokenClient(){
+    if(!window.google || !google.accounts || !google.accounts.oauth2){ toast('Google sign-in script did not load — check your internet connection'); return null; }
+    if(!state.config.driveClientId) return null;
+    if(!driveTokenClient){
+      driveTokenClient = google.accounts.oauth2.initTokenClient({ client_id: state.config.driveClientId, scope:'https://www.googleapis.com/auth/drive.file', callback:function(){} });
+    }
+    return driveTokenClient;
+  }
+  function driveConnect(){
+    if(!isSecureOrigin()){ toast('Open the app via your https:// link first — Google will not connect from a local file (see SETUP-GUIDE.md)'); return; }
+    if(!state.config.driveClientId){ toast('Save your Client ID first'); return; }
+    var tc = ensureTokenClient(); if(!tc) return;
+    tc.callback = function(resp){
+      if(resp && resp.access_token){
+        driveAccessToken = resp.access_token; state.config.driveConnected = true;
+        setKV('config', state.config); toast('Google Drive connected'); driveBackupNow(false);
+      } else { toast('Drive connection failed: ' + (resp && resp.error ? resp.error : 'unknown error — check the Client ID and authorized origin match this exact web address')); }
+    };
+    tc.requestAccessToken({prompt:'consent'});
+  }
+  function maybeSilentDriveConnect(){
+    if(!state.config.driveClientId || !state.config.driveConnected || !isSecureOrigin() || !navigator.onLine) return;
+    setTimeout(function(){
+      var tc = ensureTokenClient(); if(!tc) return;
+      tc.callback = function(resp){ if(resp && resp.access_token) driveAccessToken = resp.access_token; };
+      try{ tc.requestAccessToken({prompt:''}); }catch(e){}
+    }, 800);
+  }
+  function driveApiFetch(url, opts){
+    opts = opts||{}; opts.headers = opts.headers||{}; opts.headers['Authorization'] = 'Bearer '+driveAccessToken;
+    return fetch(url, opts);
+  }
+  function findDriveFileId(){
+    return driveApiFetch('https://www.googleapis.com/drive/v3/files?spaces=drive&q='+encodeURIComponent("name='"+FILE_NAME+"' and trashed=false")+'&fields=files(id,modifiedTime)')
+      .then(function(r){ return r.json(); }).then(function(data){ return (data.files && data.files[0]) ? data.files[0] : null; });
+  }
+  function driveBackupNow(manual){
+    if(!isSecureOrigin()){ if(manual) toast('Open via your https:// link to use Drive'); return; }
+    if(!state.config.driveClientId){ if(manual) toast('Set up Google Drive in Settings first'); return; }
+    if(!navigator.onLine){ if(manual) toast('Offline — will back up automatically once internet is back'); return; }
+    if(!driveAccessToken){
+      var tc = ensureTokenClient(); if(!tc){ return; }
+      tc.callback = function(resp){ if(resp && resp.access_token){ driveAccessToken=resp.access_token; doBackupUpload(manual); } else if(manual){ toast('Could not connect to Drive: '+(resp&&resp.error?resp.error:'unknown')); } };
+      tc.requestAccessToken({prompt: manual?'consent':''});
+      return;
+    }
+    doBackupUpload(manual);
+  }
+  function doBackupUpload(manual){
+    Promise.all([getAll('items'),getAll('sales'),getAll('customers')]).then(function(res){
+      var payload = {exportedAt:Date.now(), items:res[0], sales:res[1], customers:res[2], config: state.config};
+      var metadata = {name:FILE_NAME, mimeType:'application/json'};
+      return findDriveFileId().then(function(existing){
+        var boundary = '-------ahms'+Date.now();
+        var body = "--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify(metadata)+
+          "\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+JSON.stringify(payload)+"\r\n--"+boundary+"--";
+        var url = existing ? ('https://www.googleapis.com/upload/drive/v3/files/'+existing.id+'?uploadType=multipart') : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        return driveApiFetch(url, {method: existing?'PATCH':'POST', headers:{'Content-Type':'multipart/related; boundary='+boundary}, body:body});
+      });
+    }).then(function(r){
+      if(r && r.ok){ state.config.lastBackupTs = Date.now(); setKV('config', state.config).then(function(){ if(manual) toast('Backed up to Google Drive'); render(); }); }
+      else if(manual) toast('Backup failed — try reconnecting Drive in Settings');
+    }).catch(function(){ if(manual) toast('Backup failed — check your connection'); });
+  }
+  function driveRestore(){
+    if(!isSecureOrigin()){ toast('Open via your https:// link to use Drive'); return; }
+    if(!state.config.driveClientId){ toast('Set up Google Drive first'); return; }
+    requireReauth('Restore data from Google Drive (replaces data on this device)', function(){
+      if(!driveAccessToken){
+        var tc = ensureTokenClient(); if(!tc) return;
+        tc.callback = function(resp){ if(resp && resp.access_token){ driveAccessToken=resp.access_token; doRestore(); } else { toast('Could not connect to Drive'); } };
+        tc.requestAccessToken({prompt:'consent'});
+      } else doRestore();
+    });
+  }
+  function doRestore(){
+    findDriveFileId().then(function(existing){
+      if(!existing){ toast('No backup found on Drive yet'); return; }
+      return driveApiFetch('https://www.googleapis.com/drive/v3/files/'+existing.id+'?alt=media').then(function(r){ return r.json(); });
+    }).then(function(payload){
+      if(!payload) return;
+      var puts=[];
+      (payload.items||[]).forEach(function(it){ puts.push(putOne('items', it)); });
+      (payload.sales||[]).forEach(function(s){ puts.push(putOne('sales', s)); });
+      (payload.customers||[]).forEach(function(c){ puts.push(putOne('customers', c)); });
+      return Promise.all(puts);
+    }).then(function(){ loadData().then(function(){ render(); toast('Data restored from Drive'); }); }).catch(function(){ toast('Restore failed'); });
+  }
+  var syncTimer;
+  function scheduleAutoSync(){ clearTimeout(syncTimer); syncTimer = setTimeout(function(){ if(navigator.onLine) driveBackupNow(false); }, 4000); }
+  window.addEventListener('online', function(){ toast('Back online — syncing to Drive'); driveBackupNow(false); });
+
+  if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+
+  boot();
+})();
+</script>
+</body>
+</html>
